@@ -8,7 +8,7 @@
             <div class="max-w-3xl">
                 <h1 class="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Organizational Structure</h1>
                 <p class="mt-4 text-base text-slate-700">
-                    The leadership team that supports the choir’s ministry and mission.
+                    The organizational structure of a choir group is the clear arrangement of roles and voice sections that defines leadership, coordination, and member responsibilities to ensure unified, orderly, and harmonious musical performance.
                 </p>
             </div>
             <a href="{{ route('site.members') }}" class="inline-flex items-center justify-center rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3 text-sm font-semibold text-slate-900 hover:bg-[var(--color-muted)]">

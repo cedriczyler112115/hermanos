@@ -221,7 +221,7 @@ class MemberRoleVoicePartTest extends TestCase
         $response = $this->get(route('site.officers'));
         $response->assertOk();
 
-        $response->assertSee('The Officers');
+        $response->assertSee('Organizational Structure');
         $response->assertSee('Officer Role 1');
         $response->assertSee('Officer One');
         $response->assertSee('Officer Role 6');

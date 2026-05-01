@@ -81,7 +81,7 @@
                         <article class="h-full overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-sm">
                             <button
                                 type="button"
-                                class="group flex h-full w-full flex-col text-left focus:outline-none"
+                                class="group flex h-full w-full flex-col text-center focus:outline-none"
                                 data-member-open
                                 aria-controls="member-modal-{{ $member->id }}"
                                 aria-expanded="false"
@@ -98,12 +98,12 @@
                                     </div>
                                 </div>
                                 <div class="flex flex-1 flex-col p-6 pt-4">
-                                    <h3 class="truncate text-lg font-semibold text-slate-900 group-hover:text-[var(--color-primary)]">{{ $member->name }}</h3>
-                                    <p class="mt-1 truncate text-sm text-slate-700">
+                                    <h3 class="truncate text-center text-lg font-semibold text-slate-900 group-hover:text-[var(--color-primary)]">{{ $member->name }}</h3>
+                                    <p class="mt-1 truncate text-center text-sm text-slate-700">
                                         {{ $rolesLabel ?: 'Member' }}@if ($voicesLabel) • {{ $voicesLabel }}@endif
                                     </p>
                                     @if ($serviceDuration)
-                                        <div class="mt-2 inline-flex w-fit items-center rounded-full bg-[var(--color-muted)] px-3 py-1 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)]">
+                                        <div class="mx-auto mt-2 inline-flex w-fit items-center rounded-full bg-[var(--color-muted)] px-3 py-1 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)]">
                                             {{ $serviceDuration }} in service
                                         </div>
                                     @endif
@@ -126,7 +126,7 @@
                             <div class="member-modal-backdrop" data-member-close aria-hidden="true"></div>
                             <div class="member-modal-panel" role="dialog" aria-modal="true" aria-label="Member details" tabindex="-1">
                                 <div class="flex items-start justify-between gap-4 border-b border-[var(--color-border)] px-6 py-5">
-                                    <div class="min-w-0">
+                                    <div class="min-w-0 text-center">
                                         <div class="text-lg font-semibold text-slate-900">{{ $member->name }}</div>
                                         <div class="mt-1 text-sm text-slate-700">
                                             {{ $rolesLabel ?: 'Member' }}@if ($voicesLabel) • {{ $voicesLabel }}@endif
