@@ -60,7 +60,7 @@
                                 About Us
                             </a>
                             <a href="{{ route('site.officers') }}" class="block px-4 py-3 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-[var(--color-accent)] focus:bg-white/10 focus:text-[var(--color-accent)]" @if (request()->routeIs('site.officers')) aria-current="page" @endif>
-                                The Officers
+                                Organizational Structure
                             </a>
                             <a href="{{ route('site.board_of_directors') }}" class="block px-4 py-3 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-[var(--color-accent)] focus:bg-white/10 focus:text-[var(--color-accent)]" @if (request()->routeIs('site.board_of_directors')) aria-current="page" @endif>
                                 The BOD
@@ -125,7 +125,7 @@
                                 About Us
                             </a>
                             <a href="{{ route('site.officers') }}" class="{{ $mobileBase }} {{ request()->routeIs('site.officers') ? $mobileActive : '' }}" @if (request()->routeIs('site.officers')) aria-current="page" @endif>
-                                The Officers
+                                Organizational Structure
                             </a>
                             <a href="{{ route('site.board_of_directors') }}" class="{{ $mobileBase }} {{ request()->routeIs('site.board_of_directors') ? $mobileActive : '' }}" @if (request()->routeIs('site.board_of_directors')) aria-current="page" @endif>
                                 The BOD

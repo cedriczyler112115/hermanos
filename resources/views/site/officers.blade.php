@@ -1,12 +1,12 @@
 @extends('layouts.site')
 
-@section('title', 'The Officers · Cantores Hermanos')
+@section('title', 'Organizational Structure · Cantores Hermanos')
 
 @section('content')
     <div class="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm sm:p-10">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div class="max-w-3xl">
-                <h1 class="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">The Officers</h1>
+                <h1 class="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">Organizational Structure</h1>
                 <p class="mt-4 text-base text-slate-700">
                     The leadership team that supports the choir’s ministry and mission.
                 </p>
