@@ -2651,6 +2651,7 @@ function initPublicListings() {
                 if (typeof initEventSlideshow === 'function') {
                     initEventSlideshow();
                 }
+                initMusicSheetCardPdfPreviews(results);
             } catch (e) {
                 setError('Failed to load results. Please try again.');
             } finally {
@@ -2743,6 +2744,137 @@ function initPublicListings() {
     });
 }
 
+let musicSheetPdfJsPromise = null;
+let musicSheetPdfPreviewObserver = null;
+
+async function loadMusicSheetPdfJs() {
+    if (musicSheetPdfJsPromise) return musicSheetPdfJsPromise;
+
+    musicSheetPdfJsPromise = import('pdfjs-dist/build/pdf.mjs').then((pdfjs) => {
+        try {
+            pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+                'pdfjs-dist/build/pdf.worker.mjs',
+                import.meta.url
+            ).toString();
+        } catch {
+        }
+
+        return pdfjs;
+    });
+
+    return musicSheetPdfJsPromise;
+}
+
+async function renderMusicSheetPdfCardCanvas(canvas) {
+    if (!(canvas instanceof HTMLCanvasElement)) return;
+    if (canvas.dataset.rendered === '1') return;
+
+    const url = canvas.dataset.pdfUrl || '';
+    if (!url) return;
+
+    const container = canvas.parentElement;
+    if (!(container instanceof HTMLElement)) return;
+
+    const fallback = container.querySelector('[data-music-sheet-card-pdf-fallback]');
+
+    canvas.dataset.rendered = '1';
+    try {
+        const pdfjs = await loadMusicSheetPdfJs();
+        const task = pdfjs.getDocument({ url, withCredentials: true });
+        const pdf = await task.promise;
+        const requestedPages = Number.parseInt(String(canvas.dataset.pdfPages || '1'), 10);
+        const pagesToRender = Math.max(1, Math.min(3, Number.isFinite(requestedPages) ? requestedPages : 1));
+        const totalPages = Math.max(1, pdf.numPages || 1);
+        const actualPages = Math.min(pagesToRender, totalPages);
+
+        const pages = [];
+        for (let i = 1; i <= actualPages; i += 1) {
+            pages.push(await pdf.getPage(i));
+        }
+
+        const baseViewports = pages.map((p) => p.getViewport({ scale: 1 }));
+        const baseWidth = Math.max(...baseViewports.map((v) => v.width));
+        const baseHeight = baseViewports.reduce((sum, v) => sum + v.height, 0);
+
+        const box = container.getBoundingClientRect();
+        const targetW = Math.max(1, Math.floor(box.width));
+        const targetH = Math.max(1, Math.floor(box.height));
+        const scale = Math.min(targetW / baseWidth, targetH / baseHeight);
+        const viewports = pages.map((p) => p.getViewport({ scale }));
+        const renderWidth = baseWidth * scale;
+        const renderHeight = baseHeight * scale;
+
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        canvas.width = Math.floor(renderWidth * dpr);
+        canvas.height = Math.floor(renderHeight * dpr);
+        canvas.style.width = `${Math.floor(renderWidth)}px`;
+        canvas.style.height = `${Math.floor(renderHeight)}px`;
+
+        const ctx = canvas.getContext('2d', { alpha: false });
+        if (!ctx) throw new Error('Missing canvas context.');
+
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, renderWidth, renderHeight);
+
+        let y = 0;
+        for (let i = 0; i < pages.length; i += 1) {
+            const page = pages[i];
+            const viewport = viewports[i];
+            ctx.save();
+            ctx.translate(0, y);
+            await page.render({ canvasContext: ctx, viewport }).promise;
+            ctx.restore();
+            y += viewport.height;
+        }
+
+        if (fallback instanceof HTMLElement) {
+            fallback.hidden = true;
+        }
+    } catch {
+        if (fallback instanceof HTMLElement) {
+            fallback.hidden = false;
+            fallback.textContent = 'PDF';
+        }
+    }
+}
+
+function initMusicSheetCardPdfPreviews(root = document) {
+    const scope = root instanceof HTMLElement || root instanceof Document ? root : document;
+    const canvases = Array.from(scope.querySelectorAll('[data-music-sheet-card-pdf]'));
+    if (canvases.length === 0) return;
+
+    const observe = (canvas) => {
+        if (!(canvas instanceof HTMLCanvasElement)) return;
+        if (canvas.dataset.observed === '1') return;
+        canvas.dataset.observed = '1';
+
+        if (!('IntersectionObserver' in window)) {
+            renderMusicSheetPdfCardCanvas(canvas);
+            return;
+        }
+
+        if (!musicSheetPdfPreviewObserver) {
+            musicSheetPdfPreviewObserver = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        const el = entry.target;
+                        if (!(el instanceof HTMLCanvasElement)) return;
+                        if (!entry.isIntersecting) return;
+                        musicSheetPdfPreviewObserver?.unobserve(el);
+                        renderMusicSheetPdfCardCanvas(el);
+                    });
+                },
+                { rootMargin: '200px 0px' }
+            );
+        }
+
+        musicSheetPdfPreviewObserver.observe(canvas);
+    };
+
+    canvases.forEach(observe);
+}
+
 function initMusicSheetsPreview() {
     const gallery = document.querySelector('[data-music-sheets-gallery]');
     if (!(gallery instanceof HTMLElement)) return;
@@ -2774,6 +2906,7 @@ function initMusicSheetsPreview() {
     let index = -1;
     let lastFocused = null;
     let hintTimer = null;
+    let previewFallbackTimer = null;
 
     const csrf = getCsrfToken();
 
@@ -2797,6 +2930,8 @@ function initMusicSheetsPreview() {
     const setLoading = (loading) => {
         if (hintTimer) window.clearTimeout(hintTimer);
         hintTimer = null;
+        if (previewFallbackTimer) window.clearTimeout(previewFallbackTimer);
+        previewFallbackTimer = null;
 
         if (loadingEl instanceof HTMLElement) loadingEl.hidden = !loading;
         if (errorEl instanceof HTMLElement) errorEl.hidden = true;
@@ -2812,18 +2947,25 @@ function initMusicSheetsPreview() {
     const setError = () => {
         if (hintTimer) window.clearTimeout(hintTimer);
         hintTimer = null;
+        if (previewFallbackTimer) window.clearTimeout(previewFallbackTimer);
+        previewFallbackTimer = null;
         if (loadingEl instanceof HTMLElement) loadingEl.hidden = true;
         if (errorEl instanceof HTMLElement) errorEl.hidden = false;
         if (loadingHintEl instanceof HTMLElement) loadingHintEl.hidden = true;
     };
 
     const hidePreview = () => {
+        if (previewFallbackTimer) window.clearTimeout(previewFallbackTimer);
+        previewFallbackTimer = null;
         if (pdfEl instanceof HTMLIFrameElement) {
             pdfEl.hidden = true;
+            pdfEl.onload = null;
             pdfEl.src = '';
         }
         if (imgEl instanceof HTMLImageElement) {
             imgEl.hidden = true;
+            imgEl.onload = null;
+            imgEl.onerror = null;
             imgEl.src = '';
         }
     };
@@ -2858,6 +3000,32 @@ function initMusicSheetsPreview() {
         }
 
         return response.json();
+    };
+
+    const postCountNonBlocking = (url) => {
+        const endpoint = String(url || '');
+        if (!endpoint) return;
+
+        if (csrf && typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+            try {
+                const data = new FormData();
+                data.append('_token', csrf);
+                navigator.sendBeacon(endpoint, data);
+                return;
+            } catch {
+            }
+        }
+
+        fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'X-CSRF-TOKEN': csrf,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            credentials: 'same-origin',
+            keepalive: true,
+        }).catch(() => {});
     };
 
     const loadItems = () => {
@@ -2911,16 +3079,6 @@ function initMusicSheetsPreview() {
         setLoading(true);
         hidePreview();
 
-        try {
-            const json = await postJson(String(item.track_view_url || ''));
-            if (json && typeof json === 'object') {
-                syncCounters(sheetId, Number(json.view_count || 0), Number(json.download_count || 0));
-                item.view_count = Number(json.view_count || 0);
-                item.download_count = Number(json.download_count || 0);
-            }
-        } catch {
-        }
-
         const fileUrl = String(item.file_url || '');
         if (!fileUrl) {
             setError();
@@ -2934,16 +3092,16 @@ function initMusicSheetsPreview() {
                     setLoading(false);
                 };
                 pdfEl.src = fileUrl;
-                window.setTimeout(() => {
-                    if (!pdfEl.src) return;
-                }, 0);
+                previewFallbackTimer = window.setTimeout(() => {
+                    if (modal.hidden) return;
+                    if (pdfEl.src === fileUrl) {
+                        setLoading(false);
+                    }
+                }, 1200);
             } else {
                 setError();
             }
-            return;
-        }
-
-        if (item.is_image) {
+        } else if (item.is_image) {
             if (imgEl instanceof HTMLImageElement) {
                 imgEl.hidden = false;
                 imgEl.alt = String(item.title || '');
@@ -2953,10 +3111,19 @@ function initMusicSheetsPreview() {
             } else {
                 setError();
             }
-            return;
+        } else {
+            setError();
         }
 
-        setError();
+        postJson(String(item.track_view_url || ''))
+            .then((json) => {
+                if (json && typeof json === 'object') {
+                    syncCounters(sheetId, Number(json.view_count || 0), Number(json.download_count || 0));
+                    item.view_count = Number(json.view_count || 0);
+                    item.download_count = Number(json.download_count || 0);
+                }
+            })
+            .catch(() => {});
     };
 
     const openFromButton = (btn) => {
@@ -2994,6 +3161,36 @@ function initMusicSheetsPreview() {
     document.addEventListener('click', (event) => {
         const target = event.target;
         if (!(target instanceof HTMLElement)) return;
+
+        const downloadBtn = target.closest('[data-music-sheet-download-trigger]');
+        if (downloadBtn instanceof HTMLElement) {
+            event.preventDefault();
+
+            const raw = downloadBtn.getAttribute('data-music-sheet') || '{}';
+            let parsed = null;
+            try {
+                parsed = JSON.parse(raw);
+            } catch {
+                parsed = null;
+            }
+
+            if (parsed && typeof parsed === 'object') {
+                const sheetId = parsed.id;
+                const nextDownloads = Number(parsed.download_count || 0) + 1;
+                const nextViews = Number(parsed.view_count || 0);
+                syncCounters(sheetId, Number.isFinite(nextViews) ? nextViews : 0, Number.isFinite(nextDownloads) ? nextDownloads : 0);
+                parsed.download_count = nextDownloads;
+                postCountNonBlocking(String(parsed.download_intent_url || ''));
+
+                const url = String(parsed.download_url || '');
+                if (url) window.location.href = url;
+                return;
+            }
+
+            const href = downloadBtn.getAttribute('href') || '';
+            if (href) window.location.href = href;
+            return;
+        }
 
         const openBtn = target.closest('[data-music-sheet-open]');
         if (openBtn) {
@@ -3120,6 +3317,7 @@ if (typeof document !== 'undefined') {
         initEventSlideshow();
         initEventModals();
         initMusicSheetsPreview();
+        initMusicSheetCardPdfPreviews();
         initUploadPreviews();
         initAdminSlideshow();
         initAdminPhotoReorder();
