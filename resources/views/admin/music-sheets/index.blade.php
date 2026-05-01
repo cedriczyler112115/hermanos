@@ -3,6 +3,11 @@
 @section('title', 'Music Sheets · Admin')
 
 @section('content')
+    @php
+        $baseUrl = request()->getBaseUrl();
+        $baseUrl = is_string($baseUrl) && $baseUrl !== '/' ? rtrim($baseUrl, '/') : '';
+    @endphp
+
     <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="text-2xl font-semibold text-slate-900">Music Sheets</h1>
@@ -52,7 +57,7 @@
                                 <div class="flex items-center gap-3">
                                     <div class="h-10 w-14 overflow-hidden rounded-lg bg-[var(--color-muted)] ring-1 ring-[var(--color-border)]">
                                         @if ($sheet->is_image)
-                                            <img src="{{ $sheet->file_url }}" alt="{{ $sheet->title }}" class="h-full w-full object-cover" loading="lazy" decoding="async" />
+                                            <img src="{{ $baseUrl.route('site.music_sheets.file', $sheet, false) }}" alt="{{ $sheet->title }}" class="h-full w-full object-cover" loading="lazy" decoding="async" />
                                         @else
                                             <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--color-primary)]/30 via-white/10 to-[var(--color-accent)]/30 text-xs font-bold text-slate-800">
                                                 PDF
@@ -62,7 +67,7 @@
                                     <div class="min-w-0">
                                         <div class="truncate text-sm font-semibold text-slate-900">{{ $sheet->title }}</div>
                                         <div class="truncate text-xs text-slate-600">
-                                            <a href="{{ $sheet->file_url }}" target="_blank" rel="noopener" class="font-semibold text-[var(--color-primary)] hover:underline">View file</a>
+                                            <a href="{{ $baseUrl.route('site.music_sheets.file', $sheet, false) }}" target="_blank" rel="noopener" class="font-semibold text-[var(--color-primary)] hover:underline">View file</a>
                                         </div>
                                     </div>
                                 </div>

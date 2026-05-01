@@ -91,5 +91,44 @@ class MusicSheetTrackingTest extends TestCase
         $download = $this->get($signedUrl);
         $download->assertOk();
     }
-}
 
+    public function test_download_and_file_routes_only_allow_music_sheets_folder(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('other/test.pdf', 'pdf');
+
+        $sheet = MusicSheet::query()->create([
+            'title' => 'Test',
+            'composer' => 'Composer',
+            'file_path' => 'other/test.pdf',
+            'file_original_name' => 'test.pdf',
+            'file_mime' => 'application/pdf',
+            'file_size' => 3,
+            'view_count' => 0,
+            'download_count' => 0,
+        ]);
+
+        $this->get(route('site.music_sheets.download', $sheet))->assertNotFound();
+        $this->get(route('site.music_sheets.file', $sheet))->assertNotFound();
+    }
+
+    public function test_download_and_file_routes_accept_legacy_prefixed_paths(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('music-sheets/test.pdf', 'pdf');
+
+        $sheet = MusicSheet::query()->create([
+            'title' => 'Test',
+            'composer' => 'Composer',
+            'file_path' => 'public/music-sheets/test.pdf',
+            'file_original_name' => 'test.pdf',
+            'file_mime' => 'application/pdf',
+            'file_size' => 3,
+            'view_count' => 0,
+            'download_count' => 0,
+        ]);
+
+        $this->get(route('site.music_sheets.file', $sheet))->assertOk();
+        $this->get(route('site.music_sheets.download', $sheet))->assertOk();
+    }
+}

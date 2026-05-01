@@ -24,20 +24,29 @@
         @enderror
 
         @if (!$fileRequired && $sheet->file_path)
+            @php
+                $baseUrl = request()->getBaseUrl();
+                $baseUrl = is_string($baseUrl) && $baseUrl !== '/' ? rtrim($baseUrl, '/') : '';
+                $fileUrl = $baseUrl.route('site.music_sheets.file', $sheet, false);
+                $downloadUrl = $baseUrl.route('site.music_sheets.download', $sheet, false);
+            @endphp
             <div class="mt-3 rounded-2xl bg-[var(--color-muted)] p-4 ring-1 ring-[var(--color-border)]">
                 <div class="text-sm font-semibold text-slate-900">Current file</div>
                 <div class="mt-1 text-sm text-slate-700">
-                    <a href="{{ $sheet->file_url }}" class="font-semibold text-[var(--color-primary)] hover:underline" target="_blank" rel="noopener">
+                    <a href="{{ $fileUrl }}" class="font-semibold text-[var(--color-primary)] hover:underline" target="_blank" rel="noopener">
                         {{ $sheet->file_original_name ?: 'View file' }}
+                    </a>
+                    <span class="mx-1">•</span>
+                    <a href="{{ $downloadUrl }}" class="font-semibold text-[var(--color-primary)] hover:underline">
+                        Download
                     </a>
                 </div>
                 @if ($sheet->is_image)
                     <div class="mt-3 overflow-hidden rounded-xl bg-white ring-1 ring-[var(--color-border)]">
-                        <img src="{{ $sheet->file_url }}" alt="{{ $sheet->title }}" class="h-auto w-full object-contain" loading="lazy" decoding="async" />
+                        <img src="{{ $fileUrl }}" alt="{{ $sheet->title }}" class="h-auto w-full object-contain" loading="lazy" decoding="async" />
                     </div>
                 @endif
             </div>
         @endif
     </div>
 </div>
-

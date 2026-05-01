@@ -20,7 +20,9 @@
                 </div>
             @endif
 
-            @php($slides = array_values(array_filter((array) ($slideshowImages ?? []))))
+            @php
+                $slides = array_values(array_filter((array) ($slideshowImages ?? [])));
+            @endphp
 
             @if (count($slides) === 0)
                 <div class="home-slideshow-empty flex items-center justify-center bg-[var(--color-muted)]">
@@ -30,10 +32,23 @@
                 </div>
             @else
                 <div class="home-slideshow-stage" aria-label="Homepage slideshow" tabindex="0" data-home-slideshow-stage>
-                    @foreach ($slides as $url)
+                    @foreach ($slides as $slide)
+                        @php
+                            $large = is_array($slide) ? (string) ($slide['large'] ?? '') : (string) $slide;
+                            $srcset = is_array($slide) ? (string) ($slide['srcset'] ?? '') : '';
+                            $sizes = is_array($slide) ? (string) ($slide['sizes'] ?? '') : '';
+                        @endphp
                         <img
-                            src="{{ $loop->first ? $url : '' }}"
-                            data-src="{{ $url }}"
+                            src="{{ $loop->first ? $large : '' }}"
+                            data-src="{{ $large }}"
+                            @if ($srcset !== '')
+                                srcset="{{ $loop->first ? $srcset : '' }}"
+                                data-srcset="{{ $srcset }}"
+                            @endif
+                            @if ($sizes !== '')
+                                sizes="{{ $loop->first ? $sizes : '' }}"
+                                data-sizes="{{ $sizes }}"
+                            @endif
                             alt=""
                             class="home-slideshow-slide"
                             data-slide

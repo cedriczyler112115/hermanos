@@ -967,6 +967,15 @@ function initHomeSlideshow() {
             return;
         }
 
+        const srcset = img.getAttribute('data-srcset') || '';
+        if (srcset) {
+            img.srcset = srcset;
+        }
+        const sizes = img.getAttribute('data-sizes') || '';
+        if (sizes) {
+            img.sizes = sizes;
+        }
+
         img.addEventListener(
             'error',
             () => {
@@ -1479,6 +1488,391 @@ function initUploadPreviews() {
         });
 
         renderPreviews(input, preview);
+    });
+}
+
+function initAdminSlideshow() {
+    const root = document.querySelector('[data-admin-slideshow]');
+    if (!(root instanceof HTMLElement)) return;
+
+    const form = root.querySelector('[data-admin-slideshow-form]');
+    const drop = root.querySelector('[data-admin-slideshow-drop]');
+    const input = root.querySelector('[data-admin-slideshow-input]');
+    const browse = root.querySelector('[data-admin-slideshow-browse]');
+    const upload = root.querySelector('[data-admin-slideshow-upload]');
+    const queue = root.querySelector('[data-admin-slideshow-queue]');
+    const queueList = root.querySelector('[data-admin-slideshow-queue-list]');
+    const targetWrap = root.querySelector('[data-admin-slideshow-target-wrap]');
+    const targetEl = root.querySelector('[data-admin-slideshow-target]');
+    const targetPreview = root.querySelector('[data-admin-slideshow-target-preview]');
+    const targetLabel = root.querySelector('[data-admin-slideshow-target-label]');
+    const targetWidthInput = root.querySelector('[data-admin-slideshow-target-width]');
+    const targetHeightInput = root.querySelector('[data-admin-slideshow-target-height]');
+    const progress = root.querySelector('[data-admin-slideshow-progress]');
+    const progressText = root.querySelector('[data-admin-slideshow-progress-text]');
+    const progressBar = root.querySelector('[data-admin-slideshow-progress-bar]');
+    const errorBox = root.querySelector('[data-admin-slideshow-error]');
+
+    const bulkForm = root.querySelector('[data-admin-slideshow-bulk-form]');
+    const bulkDelete = root.querySelector('[data-admin-slideshow-bulk-delete]');
+    const selects = Array.from(root.querySelectorAll('[data-admin-slideshow-select]'));
+
+    const modal = document.querySelector('[data-admin-slideshow-preview-modal]');
+    const modalImg = document.querySelector('[data-admin-slideshow-preview-img]');
+    const modalCloses = Array.from(document.querySelectorAll('[data-admin-slideshow-preview-close]'));
+    const previewButtons = Array.from(root.querySelectorAll('[data-admin-slideshow-preview]'));
+
+    if (!(form instanceof HTMLFormElement)) return;
+    if (!(drop instanceof HTMLElement)) return;
+    if (!(input instanceof HTMLInputElement)) return;
+    if (!(browse instanceof HTMLElement)) return;
+    if (!(upload instanceof HTMLButtonElement)) return;
+
+    const csrf = getCsrfToken();
+
+    const getTargetSize = () => {
+        const fallback = { w: 1600, h: 700 };
+        if (!(targetEl instanceof HTMLElement)) return fallback;
+        const rect = targetEl.getBoundingClientRect();
+        const w = Math.round(rect.width);
+        const h = Math.round(rect.height);
+        if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return fallback;
+        return { w, h };
+    };
+
+    const syncTargetInputs = () => {
+        const { w, h } = getTargetSize();
+        if (targetWidthInput instanceof HTMLInputElement) targetWidthInput.value = String(w);
+        if (targetHeightInput instanceof HTMLInputElement) targetHeightInput.value = String(h);
+        if (targetLabel instanceof HTMLElement) targetLabel.textContent = `${w}×${h}`;
+        return { w, h };
+    };
+
+    const coverCropToDataUrl = async (file, dstW, dstH, mime, quality) => {
+        const url = URL.createObjectURL(file);
+        try {
+            const img = new Image();
+            img.decoding = 'async';
+            const loaded = new Promise((resolve, reject) => {
+                img.onload = () => resolve(true);
+                img.onerror = () => reject(new Error('Failed to load image.'));
+            });
+            img.src = url;
+            await loaded;
+
+            const srcW = img.naturalWidth || img.width || 0;
+            const srcH = img.naturalHeight || img.height || 0;
+            if (srcW <= 0 || srcH <= 0) throw new Error('Invalid image dimensions.');
+
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.floor(dstW));
+            canvas.height = Math.max(1, Math.floor(dstH));
+            const ctx = canvas.getContext('2d');
+            if (!ctx) throw new Error('Failed to allocate canvas context.');
+
+            const scale = Math.max(canvas.width / srcW, canvas.height / srcH);
+            const cropW = canvas.width / scale;
+            const cropH = canvas.height / scale;
+            const sx = Math.max(0, (srcW - cropW) / 2);
+            const sy = Math.max(0, (srcH - cropH) / 2);
+
+            ctx.drawImage(img, sx, sy, cropW, cropH, 0, 0, canvas.width, canvas.height);
+
+            if (mime === 'image/jpeg') {
+                return canvas.toDataURL('image/jpeg', typeof quality === 'number' ? quality : 0.8);
+            }
+            if (mime === 'image/webp') {
+                return canvas.toDataURL('image/webp', typeof quality === 'number' ? quality : 0.8);
+            }
+            return canvas.toDataURL('image/png');
+        } finally {
+            URL.revokeObjectURL(url);
+        }
+    };
+
+    const setError = (message) => {
+        if (!(errorBox instanceof HTMLElement)) return;
+        if (!message) {
+            errorBox.classList.add('hidden');
+            errorBox.textContent = '';
+            return;
+        }
+        errorBox.textContent = message;
+        errorBox.classList.remove('hidden');
+    };
+
+    const setUploading = (isUploading) => {
+        upload.disabled = !!isUploading || !input.files || input.files.length === 0;
+        upload.setAttribute('aria-disabled', upload.disabled ? 'true' : 'false');
+        browse.toggleAttribute('disabled', !!isUploading);
+        input.toggleAttribute('disabled', !!isUploading);
+    };
+
+    const renderQueue = () => {
+        if (!(queue instanceof HTMLElement) || !(queueList instanceof HTMLElement)) return;
+        const files = Array.from(input.files || []);
+        if (files.length === 0) {
+            queue.classList.add('hidden');
+            queueList.innerHTML = '';
+            if (targetWrap instanceof HTMLElement) targetWrap.classList.add('hidden');
+            upload.disabled = true;
+            upload.setAttribute('aria-disabled', 'true');
+            return;
+        }
+
+        const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'image/pjpeg', 'image/jfif', 'image/tiff', 'image/heif', 'image/heic'];
+        const hasTargetWrap = targetWrap instanceof HTMLElement;
+        if (hasTargetWrap) targetWrap.classList.remove('hidden');
+        const { w: targetW, h: targetH } = syncTargetInputs();
+
+        const ratio = targetW > 0 ? targetH / targetW : 0.4375;
+        const mediumW = Math.max(480, Math.min(1400, Math.round(targetW * 0.6)));
+        const mediumH = Math.max(1, Math.round(mediumW * ratio));
+
+        queueList.innerHTML = '';
+        const slice = files.slice(0, 10);
+        const validities = slice.map((file) => {
+            const name = (file.name || '').toLowerCase();
+            const extOk =
+                name.endsWith('.jpg') ||
+                name.endsWith('.jpeg') ||
+                name.endsWith('.png') ||
+                name.endsWith('.webp') ||
+                name.endsWith('.jfif') ||
+                name.endsWith('.tif') ||
+                name.endsWith('.heif');
+            const typeOk = !file.type ? extOk : allowed.includes(file.type);
+            return { file, ok: typeOk, typeOk };
+        });
+
+        validities.forEach(({ file, ok, typeOk }) => {
+            const li = document.createElement('li');
+            li.className = ok ? 'text-slate-700' : 'text-red-700';
+
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-3';
+
+            const thumb = document.createElement('img');
+            thumb.alt = '';
+            thumb.decoding = 'async';
+            thumb.loading = 'lazy';
+            thumb.className = 'h-10 w-10 rounded-lg bg-white object-cover ring-1 ring-[var(--color-border)]';
+            row.appendChild(thumb);
+
+            const meta = document.createElement('div');
+            meta.className = 'min-w-0';
+
+            const title = document.createElement('div');
+            title.className = 'truncate text-xs font-semibold';
+            title.textContent = String(file.name || 'Untitled');
+            meta.appendChild(title);
+
+            const detail = document.createElement('div');
+            detail.className = 'text-[11px] font-semibold text-slate-600';
+            detail.textContent = `${Math.round((file.size || 0) / 1024)} KB · preview ${mediumW}×${mediumH}${ok ? '' : ` · ${!typeOk ? 'unsupported format' : ''}`}`;
+            meta.appendChild(detail);
+
+            row.appendChild(meta);
+            li.appendChild(row);
+            queueList.appendChild(li);
+
+            if (!ok) return;
+
+            const wantsPng = (file.type || '').toLowerCase() === 'image/png' || (file.name || '').toLowerCase().endsWith('.png');
+            const wantsWebp = (file.type || '').toLowerCase() === 'image/webp' || (file.name || '').toLowerCase().endsWith('.webp');
+            const previewMime = wantsPng ? 'image/png' : wantsWebp ? 'image/webp' : 'image/jpeg';
+            coverCropToDataUrl(file, mediumW, mediumH, previewMime, 0.8)
+                .then((dataUrl) => {
+                    if (thumb instanceof HTMLImageElement) thumb.src = dataUrl;
+                    if (targetPreview instanceof HTMLImageElement && file === validities[0]?.file) {
+                        targetPreview.hidden = false;
+                        targetPreview.src = dataUrl;
+                    }
+                })
+                .catch(() => {
+                    if (thumb instanceof HTMLImageElement) thumb.remove();
+                });
+        });
+        if (files.length > 10) {
+            const li = document.createElement('li');
+            li.className = 'text-slate-600';
+            li.textContent = `+${files.length - 10} more file(s)…`;
+            queueList.appendChild(li);
+        }
+
+        queue.classList.remove('hidden');
+        const allOk = validities.every((v) => v.ok);
+        upload.disabled = !allOk;
+        upload.setAttribute('aria-disabled', upload.disabled ? 'true' : 'false');
+    };
+
+    const setProgress = (pct) => {
+        if (!(progress instanceof HTMLElement) || !(progressText instanceof HTMLElement) || !(progressBar instanceof HTMLElement)) return;
+        progress.classList.remove('hidden');
+        const safe = Math.max(0, Math.min(100, pct));
+        progressText.textContent = `${safe}%`;
+        progressBar.style.width = `${safe}%`;
+    };
+
+    const hideProgress = () => {
+        if (!(progress instanceof HTMLElement)) return;
+        progress.classList.add('hidden');
+        if (progressText instanceof HTMLElement) progressText.textContent = '0%';
+        if (progressBar instanceof HTMLElement) progressBar.style.width = '0%';
+    };
+
+    const mergeFiles = (currentFiles, newFiles) => {
+        const dt = new DataTransfer();
+        Array.from(currentFiles || []).forEach((f) => dt.items.add(f));
+        Array.from(newFiles || []).forEach((f) => dt.items.add(f));
+        return dt.files;
+    };
+
+    browse.addEventListener('click', () => input.click());
+    input.addEventListener('change', () => {
+        setError('');
+        renderQueue();
+    });
+
+    drop.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        drop.classList.add('ring-2', 'ring-[var(--color-primary)]');
+    });
+    drop.addEventListener('dragleave', () => drop.classList.remove('ring-2', 'ring-[var(--color-primary)]'));
+    drop.addEventListener('drop', (event) => {
+        event.preventDefault();
+        drop.classList.remove('ring-2', 'ring-[var(--color-primary)]');
+        const files = event.dataTransfer?.files;
+        if (!files || files.length === 0) return;
+        input.files = mergeFiles(input.files, files);
+        setError('');
+        renderQueue();
+    });
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        setError('');
+
+        const files = Array.from(input.files || []);
+        if (files.length === 0) return;
+
+        const data = new FormData(form);
+
+        setUploading(true);
+        setProgress(0);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', form.action);
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.setRequestHeader('X-CSRF-TOKEN', csrf);
+
+        xhr.upload.onprogress = (e) => {
+            if (!e.lengthComputable) return;
+            setProgress(Math.round((e.loaded / e.total) * 100));
+        };
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                window.location.reload();
+                return;
+            }
+
+            const json = (() => {
+                try {
+                    return JSON.parse(xhr.responseText || '{}');
+                } catch {
+                    return null;
+                }
+            })();
+
+            const message = json?.message || 'Upload failed. Please try again.';
+            setError(message);
+            setUploading(false);
+            hideProgress();
+        };
+
+        xhr.onerror = () => {
+            setError('Upload failed. Please check your connection and try again.');
+            setUploading(false);
+            hideProgress();
+        };
+
+        xhr.send(data);
+    });
+
+    const refreshBulk = () => {
+        if (!(bulkDelete instanceof HTMLButtonElement)) return;
+        const checked = selects.filter((el) => el instanceof HTMLInputElement && el.checked).length;
+        bulkDelete.disabled = checked === 0;
+        bulkDelete.setAttribute('aria-disabled', bulkDelete.disabled ? 'true' : 'false');
+    };
+
+    selects.forEach((el) => {
+        if (!(el instanceof HTMLInputElement)) return;
+        el.addEventListener('change', refreshBulk);
+    });
+    refreshBulk();
+
+    if (bulkForm instanceof HTMLFormElement) {
+        bulkForm.addEventListener('submit', (event) => {
+            const ids = selects
+                .filter((el) => el instanceof HTMLInputElement && el.checked)
+                .map((el) => Number(el.value))
+                .filter((id) => Number.isFinite(id) && id > 0);
+
+            if (ids.length === 0) {
+                event.preventDefault();
+                return;
+            }
+
+            if (!window.confirm(`Delete ${ids.length} selected slideshow image(s)? This will remove all variants.`)) {
+                event.preventDefault();
+                return;
+            }
+
+            Array.from(bulkForm.querySelectorAll('input[name="ids[]"]')).forEach((n) => n.remove());
+            ids.forEach((id) => {
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'ids[]';
+                hidden.value = String(id);
+                bulkForm.appendChild(hidden);
+            });
+        });
+    }
+
+    const closePreview = () => {
+        if (!(modal instanceof HTMLElement)) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        if (modalImg instanceof HTMLImageElement) {
+            modalImg.src = '';
+        }
+    };
+
+    const openPreview = (src) => {
+        if (!(modal instanceof HTMLElement) || !(modalImg instanceof HTMLImageElement)) return;
+        modalImg.src = src;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
+
+    previewButtons.forEach((btn) => {
+        if (!(btn instanceof HTMLElement)) return;
+        btn.addEventListener('click', () => {
+            const src = btn.getAttribute('data-preview-src') || '';
+            if (src) openPreview(src);
+        });
+    });
+
+    modalCloses.forEach((btn) => {
+        if (!(btn instanceof HTMLElement)) return;
+        btn.addEventListener('click', closePreview);
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        closePreview();
     });
 }
 
@@ -2727,6 +3121,7 @@ if (typeof document !== 'undefined') {
         initEventModals();
         initMusicSheetsPreview();
         initUploadPreviews();
+        initAdminSlideshow();
         initAdminPhotoReorder();
         initLightbox();
         initGalleryCarousel();

@@ -64,6 +64,9 @@
                         <a href="{{ route('admin.performances.index') }}" class="min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold {{ request()->routeIs('admin.performances.*') ? 'bg-[var(--color-muted)] text-[var(--color-primary)]' : 'text-slate-800 hover:bg-[var(--color-muted)] hover:text-[var(--color-primary)]' }}">
                             Performances
                         </a>
+                        <a href="{{ route('admin.slideshow.index') }}" class="min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold {{ request()->routeIs('admin.slideshow.*') ? 'bg-[var(--color-muted)] text-[var(--color-primary)]' : 'text-slate-800 hover:bg-[var(--color-muted)] hover:text-[var(--color-primary)]' }}">
+                            Slideshow
+                        </a>
                         <a href="{{ route('admin.music_sheets.index') }}" class="min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold {{ request()->routeIs('admin.music_sheets.*') ? 'bg-[var(--color-muted)] text-[var(--color-primary)]' : 'text-slate-800 hover:bg-[var(--color-muted)] hover:text-[var(--color-primary)]' }}">
                             Music Sheets
                         </a>

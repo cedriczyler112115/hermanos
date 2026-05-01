@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\URL;
 
 class MusicSheetPublicController extends Controller
 {
@@ -20,21 +19,34 @@ class MusicSheetPublicController extends Controller
     {
         $result = $this->trackEvent($request, $music_sheet, 'download', true);
 
-        $signedUrl = URL::temporarySignedRoute(
-            'site.music_sheets.download_file',
-            now()->addMinutes(10),
-            ['music_sheet' => $music_sheet->id],
-            false,
-        );
         $baseUrl = (string) $request->getBaseUrl();
-        if ($baseUrl !== '' && $baseUrl !== '/' && str_starts_with($signedUrl, '/')) {
-            $signedUrl = rtrim($baseUrl, '/').$signedUrl;
-        }
+        $baseUrl = $baseUrl !== '' && $baseUrl !== '/' ? rtrim($baseUrl, '/') : '';
+        $downloadUrl = $baseUrl.route('site.music_sheets.download', $music_sheet, false);
 
         $payload = $result->getData(true);
-        $payload['download_url'] = $signedUrl;
+        $payload['download_url'] = $downloadUrl;
 
         return response()->json($payload);
+    }
+
+    public function file(Request $request, MusicSheet $music_sheet)
+    {
+        $path = $this->safePublicMusicSheetPath($music_sheet);
+        if ($path === '' || ! Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        $name = (string) ($music_sheet->file_original_name ?: basename($path));
+        $mime = (string) ($music_sheet->file_mime ?: '');
+
+        $headers = [
+            'Content-Disposition' => 'inline; filename="'.addcslashes($name, '"\\').'"',
+        ];
+        if ($mime !== '') {
+            $headers['Content-Type'] = $mime;
+        }
+
+        return Storage::disk('public')->response($path, $name, $headers);
     }
 
     public function download(Request $request, MusicSheet $music_sheet)
@@ -46,16 +58,12 @@ class MusicSheetPublicController extends Controller
 
     public function downloadFile(Request $request, MusicSheet $music_sheet)
     {
-        if (! $request->hasValidSignature(false)) {
-            abort(403);
-        }
-
         return $this->streamFile($music_sheet);
     }
 
     private function streamFile(MusicSheet $music_sheet)
     {
-        $path = (string) $music_sheet->file_path;
+        $path = $this->safePublicMusicSheetPath($music_sheet);
         if ($path === '' || ! Storage::disk('public')->exists($path)) {
             abort(404);
         }
@@ -63,6 +71,37 @@ class MusicSheetPublicController extends Controller
         $name = (string) ($music_sheet->file_original_name ?: basename($path));
 
         return Storage::disk('public')->download($path, $name);
+    }
+
+    private function safePublicMusicSheetPath(MusicSheet $music_sheet): string
+    {
+        $path = ltrim((string) $music_sheet->file_path, '/\\');
+        if ($path === '') {
+            return '';
+        }
+
+        $path = str_replace('\\', '/', $path);
+        $needle = 'music-sheets/';
+        $pos = strpos($path, $needle);
+        if ($pos === false) {
+            $onlyName = basename($path);
+            if ($onlyName === '' || $onlyName === '.' || $onlyName === '..') {
+                return '';
+            }
+            $path = $needle.$onlyName;
+        } elseif ($pos !== 0) {
+            $path = substr($path, $pos);
+        }
+
+        if (! str_starts_with($path, $needle)) {
+            return '';
+        }
+
+        if (str_contains($path, '../') || str_contains($path, '..\\') || str_contains($path, "\0")) {
+            return '';
+        }
+
+        return $path;
     }
 
     private function trackEvent(Request $request, MusicSheet $music_sheet, string $eventType, bool $jsonOnly = true)

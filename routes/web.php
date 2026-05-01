@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\LookupController;
 use App\Http\Controllers\Admin\MemberController as AdminMemberController;
 use App\Http\Controllers\Admin\MusicSheetController as AdminMusicSheetController;
 use App\Http\Controllers\Admin\PerformanceController as AdminPerformanceController;
+use App\Http\Controllers\Admin\SlideshowController as AdminSlideshowController;
 use App\Http\Controllers\MusicSheetPublicController;
 use App\Http\Controllers\SiteController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,7 @@ Route::get('/contact', [SiteController::class, 'contact'])->name('site.contact')
 Route::get('/music-sheets', [SiteController::class, 'musicSheets'])->name('site.music_sheets');
 Route::post('/music-sheets/{music_sheet}/track-view', [MusicSheetPublicController::class, 'trackView'])->name('site.music_sheets.track_view');
 Route::post('/music-sheets/{music_sheet}/download-intent', [MusicSheetPublicController::class, 'downloadIntent'])->name('site.music_sheets.download_intent');
+Route::get('/music-sheets/{music_sheet}/file', [MusicSheetPublicController::class, 'file'])->name('site.music_sheets.file');
 Route::get('/music-sheets/{music_sheet}/download', [MusicSheetPublicController::class, 'download'])->name('site.music_sheets.download');
 Route::get('/music-sheets/{music_sheet}/download-file', [MusicSheetPublicController::class, 'downloadFile'])->name('site.music_sheets.download_file');
 
@@ -73,6 +75,11 @@ Route::prefix('admin')->group(function () {
         Route::resource('performances', AdminPerformanceController::class)
             ->names('admin.performances')
             ->except(['show']);
+
+        Route::get('slideshow', [AdminSlideshowController::class, 'index'])->name('admin.slideshow.index');
+        Route::post('slideshow', [AdminSlideshowController::class, 'store'])->name('admin.slideshow.store');
+        Route::post('slideshow/bulk-delete', [AdminSlideshowController::class, 'bulkDestroy'])->name('admin.slideshow.bulk_delete');
+        Route::delete('slideshow/{slideshow_image}', [AdminSlideshowController::class, 'destroy'])->name('admin.slideshow.destroy');
 
         Route::get('music-sheets/analytics', [AdminMusicSheetController::class, 'analytics'])
             ->name('admin.music_sheets.analytics');

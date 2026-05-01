@@ -8,6 +8,7 @@ use App\Models\GalleryPhoto;
 use App\Models\Member;
 use App\Models\MusicSheet;
 use App\Models\Performance;
+use App\Models\SlideshowImage;
 use App\Support\PublicListing;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -23,35 +24,85 @@ class SiteController extends Controller
         $slideshowWarning = '';
 
         try {
-            $disk = Storage::disk('public');
-            if (! $disk->exists('slideshow')) {
-                $slideshowError = 'Slideshow folder not found: storage/app/public/slideshow';
+            $records = SlideshowImage::query()
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->get(['desktop_path', 'mobile_path', 'thumb_path', 'desktop_width', 'desktop_height']);
+
+            if ($records->count() > 0) {
+                $slideshowImages = $records
+                    ->map(function ($row) {
+                        $largePath = ltrim(str_replace('\\', '/', (string) $row->desktop_path), '/');
+                        $mediumPath = ltrim(str_replace('\\', '/', (string) $row->mobile_path), '/');
+                        $thumbPath = ltrim(str_replace('\\', '/', (string) $row->thumb_path), '/');
+
+                        $largeUrl = asset('storage/'.$largePath);
+                        $mediumUrl = asset('storage/'.$mediumPath);
+                        $thumbUrl = asset('storage/'.$thumbPath);
+
+                        if ($largePath === $mediumPath && $largePath === $thumbPath) {
+                            return [
+                                'large' => $largeUrl,
+                                'srcset' => '',
+                                'sizes' => '',
+                            ];
+                        }
+
+                        $largeW = (int) ($row->desktop_width ?? 0);
+                        $largeW = $largeW > 0 ? $largeW : 1600;
+                        $mediumW = (int) round($largeW * 0.6);
+                        $mediumW = max(480, min(1400, $mediumW));
+                        $thumbW = (int) round($largeW * 0.3);
+                        $thumbW = max(240, min(640, $thumbW));
+
+                        $srcset = $thumbUrl.' '.$thumbW.'w, '.$mediumUrl.' '.$mediumW.'w, '.$largeUrl.' '.$largeW.'w';
+
+                        return [
+                            'large' => $largeUrl,
+                            'srcset' => $srcset,
+                            'sizes' => '100vw',
+                        ];
+                    })
+                    ->values()
+                    ->all();
             } else {
-                $files = $disk->files('slideshow');
-                $allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+                $disk = Storage::disk('public');
+                if (! $disk->exists('slideshow')) {
+                    $slideshowError = 'Slideshow folder not found: storage/app/public/slideshow';
+                } else {
+                    $allowed = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+                    $paths = [];
 
-                $supported = [];
-                $unsupportedCount = 0;
+                    $desktop = $disk->files('slideshow/desktop');
+                    $paths = is_array($desktop) && count($desktop) > 0 ? $desktop : $disk->files('slideshow');
 
-                foreach ($files as $path) {
-                    $ext = strtolower(pathinfo((string) $path, PATHINFO_EXTENSION));
-                    if (in_array($ext, $allowed, true)) {
-                        $supported[] = $path;
-                    } else {
-                        $unsupportedCount++;
+                    $supported = [];
+                    $unsupportedCount = 0;
+
+                    foreach ($paths as $path) {
+                        $ext = strtolower(pathinfo((string) $path, PATHINFO_EXTENSION));
+                        if (in_array($ext, $allowed, true)) {
+                            $supported[] = $path;
+                        } else {
+                            $unsupportedCount++;
+                        }
                     }
+
+                    sort($supported);
+
+                    if ($unsupportedCount > 0) {
+                        $slideshowWarning = 'Some slideshow files were skipped because the format is not supported.';
+                    }
+
+                    $slideshowImages = array_map(function ($path) {
+                        $normalized = str_replace('\\', '/', (string) $path);
+                        return [
+                            'large' => asset('storage/'.ltrim($normalized, '/')),
+                            'srcset' => '',
+                            'sizes' => '',
+                        ];
+                    }, $supported);
                 }
-
-                sort($supported);
-
-                if ($unsupportedCount > 0) {
-                    $slideshowWarning = 'Some slideshow files were skipped because the format is not supported.';
-                }
-
-                $slideshowImages = array_map(function ($path) {
-                    $normalized = str_replace('\\', '/', (string) $path);
-                    return asset('storage/'.ltrim($normalized, '/'));
-                }, $supported);
             }
         } catch (\Throwable $e) {
             report($e);

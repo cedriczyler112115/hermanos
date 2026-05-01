@@ -6,13 +6,14 @@
 
             $trackViewPath = route('site.music_sheets.track_view', $sheet, false);
             $downloadIntentPath = route('site.music_sheets.download_intent', $sheet, false);
+            $filePath = route('site.music_sheets.file', $sheet, false);
             $downloadPath = route('site.music_sheets.download', $sheet, false);
 
             $payload = [
                 'id' => $sheet->id,
                 'title' => $sheet->title,
                 'composer' => $sheet->composer,
-                'file_url' => $sheet->file_url,
+                'file_url' => $baseUrl.$filePath,
                 'is_pdf' => (bool) $sheet->is_pdf,
                 'is_image' => (bool) $sheet->is_image,
                 'view_count' => (int) ($sheet->view_count ?? 0),
@@ -32,7 +33,7 @@
         >
             <div class="relative aspect-[4/3] overflow-hidden bg-[var(--color-muted)]">
                 @if ($sheet->is_image)
-                    <img src="{{ $sheet->file_url }}" alt="{{ $sheet->title }}" class="h-full w-full object-cover" loading="lazy" decoding="async" />
+                    <img src="{{ $baseUrl.$filePath }}" alt="{{ $sheet->title }}" class="h-full w-full object-cover" loading="lazy" decoding="async" />
                 @else
                     <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[var(--color-primary)]/35 via-white/10 to-[var(--color-accent)]/35">
                         <div class="rounded-2xl bg-white/90 px-4 py-2 text-sm font-extrabold text-slate-900 ring-1 ring-[var(--color-border)]">
