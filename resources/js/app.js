@@ -2100,7 +2100,7 @@ function initGalleryCarousel() {
 
         const topBar = document.createElement('div');
         topBar.className =
-            'absolute left-0 right-0 top-0 z-10 flex items-center justify-between gap-3 bg-black/25 px-4 py-3 backdrop-blur';
+            'absolute left-0 right-0 top-0 z-20 flex items-center justify-between gap-3 bg-black/25 px-4 py-3 backdrop-blur';
 
         counter = document.createElement('div');
         counter.className = 'text-sm font-semibold text-white';
