@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 
 #[Fillable([
     'name',
+    'email_address',
+    'start_date',
     'address',
     'hobbies',
     'role_id',
@@ -21,6 +23,14 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class Member extends Model
 {
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'start_date' => 'date',
+        ];
+    }
+
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class);

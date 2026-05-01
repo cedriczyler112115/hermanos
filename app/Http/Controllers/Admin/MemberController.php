@@ -94,6 +94,8 @@ class MemberController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'email_address' => ['nullable', 'email', 'max:255'],
+            'start_date' => ['nullable', 'date'],
             'address' => ['nullable', 'string', 'max:500'],
             'hobbies' => ['nullable', 'string', 'max:500'],
             'description' => ['nullable', 'string', 'max:5000'],

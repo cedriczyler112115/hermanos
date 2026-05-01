@@ -489,12 +489,45 @@ class SiteController extends Controller
     {
         $members = Member::query()
             ->where('is_active', true)
-            ->orderBy('name')
             ->with(['role', 'voicePart'])
-            ->paginate(12);
+            ->get();
+
+        $members = $members->sortBy(function (Member $member) {
+            $fullName = trim((string) $member->name);
+            $parts = preg_split('/\s+/', $fullName) ?: [];
+            $last = $parts ? (string) end($parts) : '';
+
+            return [mb_strtolower($last), mb_strtolower($fullName)];
+        })->values();
+
+        $groups = $members
+            ->groupBy(function (Member $member) {
+                return (string) ($member->voicePart?->name ?: 'Unassigned');
+            })
+            ->sortKeysUsing(function (string $a, string $b) {
+                $order = [
+                    'soprano' => 1,
+                    'alto' => 2,
+                    'tenor' => 3,
+                    'bass' => 4,
+                    'unassigned' => 99,
+                ];
+
+                $ka = mb_strtolower(trim($a));
+                $kb = mb_strtolower(trim($b));
+
+                $oa = $order[$ka] ?? 50;
+                $ob = $order[$kb] ?? 50;
+
+                if ($oa !== $ob) {
+                    return $oa <=> $ob;
+                }
+
+                return $ka <=> $kb;
+            });
 
         return view('site.members', [
-            'members' => $members,
+            'memberGroups' => $groups,
         ]);
     }
 

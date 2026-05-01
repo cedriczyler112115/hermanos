@@ -7,6 +7,22 @@
         @enderror
     </div>
 
+    <div>
+        <label for="email_address" class="block text-sm font-medium text-slate-800">Email address</label>
+        <input id="email_address" name="email_address" type="email" value="{{ old('email_address', $member->email_address) }}" class="mt-1 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-3 text-slate-900 shadow-sm focus:border-[var(--color-primary)] focus:ring-0" />
+        @error('email_address')
+            <div class="mt-1 text-sm text-red-700">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div>
+        <label for="start_date" class="block text-sm font-medium text-slate-800">Start date</label>
+        <input id="start_date" name="start_date" type="date" value="{{ old('start_date', optional($member->start_date)->format('Y-m-d')) }}" class="mt-1 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-3 text-slate-900 shadow-sm focus:border-[var(--color-primary)] focus:ring-0" />
+        @error('start_date')
+            <div class="mt-1 text-sm text-red-700">{{ $message }}</div>
+        @enderror
+    </div>
+
     <div class="md:col-span-2">
         <label for="address" class="block text-sm font-medium text-slate-800">Address</label>
         <input id="address" name="address" type="text" value="{{ old('address', $member->address) }}" class="mt-1 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-3 text-slate-900 shadow-sm focus:border-[var(--color-primary)] focus:ring-0" />
