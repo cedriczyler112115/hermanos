@@ -154,7 +154,7 @@
                     <div class="my-12" aria-hidden="true">
                         <div class="relative">
                             <div class="h-1 w-full rounded-full bg-gradient-to-r from-transparent via-[var(--color-border)] to-transparent"></div>
-                            <div class="absolute inset-x-0 -top-5 flex justify-center">
+                            <div class="absolute inset-x-0 -top-5 flex justify-center" style="margin-top: 15px;">
                                 <div class="rounded-full border border-white/20 bg-gradient-to-r from-[var(--color-primary)] via-[#0a2f88] to-[var(--color-primary)] px-6 py-2 text-xs font-extrabold tracking-[0.28em] text-white shadow-lg shadow-[var(--color-primary)]/20 ring-1 ring-[var(--color-border)]">
                                     CHOIR MEMBER
                                 </div>
