@@ -128,7 +128,7 @@
                                 The Officers
                             </a>
                             <a href="{{ route('site.board_of_directors') }}" class="{{ $mobileBase }} {{ request()->routeIs('site.board_of_directors') ? $mobileActive : '' }}" @if (request()->routeIs('site.board_of_directors')) aria-current="page" @endif>
-                                The Board of Directors
+                                The BOD
                             </a>
                             <a href="{{ route('site.contact') }}" class="{{ $mobileBase }}">
                                 Contact Us
