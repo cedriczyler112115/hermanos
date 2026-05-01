@@ -69,11 +69,11 @@
                 <div class="flex items-center justify-center">
                     <div class="w-full max-w-md">
                         <div class="mb-4 text-center">
-                            <div class="text-sm font-semibold text-slate-900">{{ $vicePresidentRole?->name ?: 'Vice President' }}</div>
+                            <div class="text-sm font-semibold text-slate-800" style="margin-top:15px;">{{ $vicePresidentRole?->name ?: 'Vice President' }}</div>
                         </div>
                         @if ($vicePresidentMembers->count() === 0)
                             <div class="rounded-3xl bg-[var(--color-muted)] p-8 ring-1 ring-[var(--color-border)] text-center">
-                                <div class="text-sm font-semibold text-slate-900">No vice president assigned</div>
+                                <div class="text-sm font-semibold text-slate-900" >No vice president assigned</div>
                                 <div class="mt-1 text-sm text-slate-700">Assign the Vice President role (Role ID 2) to a member.</div>
                             </div>
                         @else
