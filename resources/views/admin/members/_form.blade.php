@@ -43,11 +43,21 @@
         <label for="role_id" class="block text-sm font-medium text-slate-800">Role</label>
         <select id="role_id" name="role_id" class="mt-1 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-3 text-sm text-slate-900 shadow-sm focus:border-[var(--color-primary)] focus:ring-0">
             <option value="">— Select —</option>
-            @foreach (($roles ?? collect()) as $role)
-                <option value="{{ $role->id }}" {{ (string) old('role_id', $member->role_id) === (string) $role->id ? 'selected' : '' }}>
-                    {{ $role->name }}
-                </option>
+            @php($rolesList = ($roles ?? collect()))
+            @php($rolesBeforeChoir = $rolesList->filter(fn ($r) => (int) $r->id <= 6))
+            @php($rolesChoir = $rolesList->filter(fn ($r) => (int) $r->id > 6))
+
+            @foreach ($rolesBeforeChoir as $role)
+                <option value="{{ $role->id }}" {{ (string) old('role_id', $member->role_id) === (string) $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
             @endforeach
+
+            @if ($rolesChoir->count() > 0)
+                <optgroup label="CHOIR MEMBERS">
+                    @foreach ($rolesChoir as $role)
+                        <option value="{{ $role->id }}" {{ (string) old('role_id', $member->role_id) === (string) $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                    @endforeach
+                </optgroup>
+            @endif
         </select>
         @error('role_id')
             <div class="mt-1 text-sm text-red-700">{{ $message }}</div>

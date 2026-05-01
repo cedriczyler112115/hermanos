@@ -53,7 +53,7 @@ class MemberController extends Controller
 
         return view('admin.members.edit', [
             'member' => $member,
-            'roles' => Role::query()->orderBy('name')->get(['id', 'name']),
+            'roles' => Role::query()->orderBy('id', 'asc')->get(['id', 'name']),
             'voiceParts' => VoicePart::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
