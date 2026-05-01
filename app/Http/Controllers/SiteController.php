@@ -8,6 +8,7 @@ use App\Models\GalleryPhoto;
 use App\Models\Member;
 use App\Models\MusicSheet;
 use App\Models\Performance;
+use App\Models\Role;
 use App\Models\SlideshowImage;
 use App\Support\PublicListing;
 use Illuminate\Http\Request;
@@ -528,6 +529,57 @@ class SiteController extends Controller
 
         return view('site.members', [
             'memberGroups' => $groups,
+        ]);
+    }
+
+    public function officers()
+    {
+        $officerRoles = Role::query()
+            ->whereBetween('id', [1, 7])
+            ->orderBy('id')
+            ->get(['id', 'name']);
+
+        $officerMembersByRoleId = Member::query()
+            ->where('is_active', true)
+            ->whereIn('role_id', $officerRoles->pluck('id'))
+            ->with(['role', 'voicePart'])
+            ->orderBy('name')
+            ->get()
+            ->groupBy('role_id');
+
+        $presidentRole = $officerRoles->firstWhere('id', 1);
+        $vicePresidentRole = $officerRoles->firstWhere('id', 2);
+        $presidentMembers = $officerMembersByRoleId->get(1, collect());
+        $vicePresidentMembers = $officerMembersByRoleId->get(2, collect());
+
+        $remainingOfficers = Member::query()
+            ->where('is_active', true)
+            ->whereIn('role_id', $officerRoles->pluck('id')->reject(fn ($id) => in_array((int) $id, [1, 2], true)))
+            ->with(['role', 'voicePart'])
+            ->orderBy('role_id')
+            ->orderBy('name')
+            ->get();
+
+        return view('site.officers', [
+            'presidentRole' => $presidentRole,
+            'presidentMembers' => $presidentMembers,
+            'vicePresidentRole' => $vicePresidentRole,
+            'vicePresidentMembers' => $vicePresidentMembers,
+            'remainingOfficers' => $remainingOfficers,
+        ]);
+    }
+
+    public function boardOfDirectors()
+    {
+        $directors = Member::query()
+            ->where('is_active', true)
+            ->where('is_bod', true)
+            ->with(['role', 'voicePart'])
+            ->orderBy('name')
+            ->get();
+
+        return view('site.board-of-directors', [
+            'directors' => $directors,
         ]);
     }
 

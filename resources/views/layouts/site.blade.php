@@ -38,7 +38,7 @@
                     @php($navActive = 'bg-white/15 text-[var(--color-accent)]')
 
                     <div class="relative" data-home-menu>
-                        @php($homeActive = request()->routeIs('site.home') || request()->routeIs('site.history'))
+                        @php($homeActive = request()->routeIs('site.home') || request()->routeIs('site.history') || request()->routeIs('site.officers') || request()->routeIs('site.board_of_directors'))
                         <button href="{{ route('site.home') }}"
                             type="button"
                             class="{{ $navBase }} inline-flex items-center gap-2 {{ $homeActive ? $navActive : '' }}"
@@ -58,6 +58,12 @@
                             </a>
                             <a href="{{ route('site.history') }}" class="block px-4 py-3 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-[var(--color-accent)] focus:bg-white/10 focus:text-[var(--color-accent)]" @if (request()->routeIs('site.history')) aria-current="page" @endif>
                                 About Us
+                            </a>
+                            <a href="{{ route('site.officers') }}" class="block px-4 py-3 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-[var(--color-accent)] focus:bg-white/10 focus:text-[var(--color-accent)]" @if (request()->routeIs('site.officers')) aria-current="page" @endif>
+                                The Officers
+                            </a>
+                            <a href="{{ route('site.board_of_directors') }}" class="block px-4 py-3 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-[var(--color-accent)] focus:bg-white/10 focus:text-[var(--color-accent)]" @if (request()->routeIs('site.board_of_directors')) aria-current="page" @endif>
+                                The Board of Directors
                             </a>
                             <a href="{{ route('site.contact') }}" class="block px-4 py-3 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-[var(--color-accent)] focus:bg-white/10 focus:text-[var(--color-accent)]">
                                 Contact Us
@@ -100,7 +106,7 @@
                     @php($mobileActive = 'bg-white/15 text-[var(--color-accent)]')
 
                     <div class="rounded-lg border border-white/10 bg-white/5" data-mobile-home>
-                        @php($homeMobileActive = request()->routeIs('site.home') || request()->routeIs('site.history'))
+                        @php($homeMobileActive = request()->routeIs('site.home') || request()->routeIs('site.history') || request()->routeIs('site.officers') || request()->routeIs('site.board_of_directors'))
                         <button
                             type="button"
                             class="{{ $mobileBase }} flex w-full items-center justify-between {{ $homeMobileActive ? $mobileActive : '' }}"
@@ -117,6 +123,12 @@
                             </a>
                             <a href="{{ route('site.history') }}" class="{{ $mobileBase }} {{ request()->routeIs('site.history') ? $mobileActive : '' }}" @if (request()->routeIs('site.history')) aria-current="page" @endif>
                                 About Us
+                            </a>
+                            <a href="{{ route('site.officers') }}" class="{{ $mobileBase }} {{ request()->routeIs('site.officers') ? $mobileActive : '' }}" @if (request()->routeIs('site.officers')) aria-current="page" @endif>
+                                The Officers
+                            </a>
+                            <a href="{{ route('site.board_of_directors') }}" class="{{ $mobileBase }} {{ request()->routeIs('site.board_of_directors') ? $mobileActive : '' }}" @if (request()->routeIs('site.board_of_directors')) aria-current="page" @endif>
+                                The Board of Directors
                             </a>
                             <a href="{{ route('site.contact') }}" class="{{ $mobileBase }}">
                                 Contact Us

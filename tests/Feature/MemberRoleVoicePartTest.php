@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\VoicePart;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class MemberRoleVoicePartTest extends TestCase
@@ -159,5 +160,96 @@ class MemberRoleVoicePartTest extends TestCase
         $response->assertSee('Choir Member');
         $response->assertSee('Voice part');
         $response->assertSee('Tenor');
+    }
+
+    public function test_officers_page_shows_roles_1_to_7_and_excludes_non_officer_roles(): void
+    {
+        $now = now();
+        DB::table('roles')->insert(
+            collect(range(1, 7))->map(function ($i) use ($now) {
+                return [
+                    'id' => $i,
+                    'name' => 'Officer Role '.$i,
+                    'description' => null,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            })->all()
+        );
+
+        DB::table('roles')->insert([
+            [
+                'id' => 8,
+                'name' => 'Organist',
+                'description' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'id' => 9,
+                'name' => 'Choir Member',
+                'description' => null,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+        ]);
+
+        Member::create([
+            'name' => 'Officer One',
+            'role_id' => 1,
+            'is_active' => true,
+        ]);
+
+        Member::create([
+            'name' => 'Officer Seven',
+            'role_id' => 7,
+            'is_active' => true,
+        ]);
+
+        Member::create([
+            'name' => 'The Organist',
+            'role_id' => 8,
+            'is_active' => true,
+        ]);
+
+        Member::create([
+            'name' => 'Regular Member',
+            'role_id' => 9,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('site.officers'));
+        $response->assertOk();
+
+        $response->assertSee('The Officers');
+        $response->assertSee('Officer Role 1');
+        $response->assertSee('Officer Role 7');
+        $response->assertSee('Officer One');
+        $response->assertSee('Officer Seven');
+        $response->assertDontSee('Organist');
+        $response->assertDontSee('The Organist');
+        $response->assertDontSee('Regular Member');
+    }
+
+    public function test_board_of_directors_page_filters_by_is_bod(): void
+    {
+        Member::create([
+            'name' => 'Director One',
+            'is_bod' => true,
+            'is_active' => true,
+        ]);
+
+        Member::create([
+            'name' => 'Not Director',
+            'is_bod' => false,
+            'is_active' => true,
+        ]);
+
+        $response = $this->get(route('site.board_of_directors'));
+        $response->assertOk();
+
+        $response->assertSee('The Board of Directors');
+        $response->assertSee('Director One');
+        $response->assertDontSee('Not Director');
     }
 }

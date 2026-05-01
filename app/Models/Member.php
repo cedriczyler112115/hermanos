@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Model;
     'facebook_url',
     'youtube_url',
     'is_active',
+    'is_bod',
 ])]
 class Member extends Model
 {
@@ -27,6 +28,7 @@ class Member extends Model
     {
         return [
             'is_active' => 'boolean',
+            'is_bod' => 'boolean',
             'start_date' => 'date',
         ];
     }

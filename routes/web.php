@@ -18,6 +18,8 @@ Route::get('/login', function () {
 
 Route::get('/', [SiteController::class, 'home'])->name('site.home');
 Route::get('/history', [SiteController::class, 'history'])->name('site.history');
+Route::get('/officers', [SiteController::class, 'officers'])->name('site.officers');
+Route::get('/board-of-directors', [SiteController::class, 'boardOfDirectors'])->name('site.board_of_directors');
 Route::get('/events', [SiteController::class, 'events'])->name('site.events');
 Route::get('/gallery', [SiteController::class, 'gallery'])->name('site.gallery');
 Route::get('/gallery/{album}', [SiteController::class, 'galleryAlbum'])->name('site.gallery.album');

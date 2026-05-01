@@ -101,6 +101,14 @@
         @enderror
     </div>
 
+    <div class="flex items-center gap-2 md:col-span-2">
+        <input id="is_bod" name="is_bod" type="checkbox" value="1" {{ old('is_bod', $member->is_bod ?? false) ? 'checked' : '' }} class="h-4 w-4 rounded border-slate-300 text-[var(--color-primary)] focus:ring-0" />
+        <label for="is_bod" class="text-sm font-medium text-slate-800">Board of Directors</label>
+        @error('is_bod')
+            <div class="text-sm text-red-700">{{ $message }}</div>
+        @enderror
+    </div>
+
     <div class="md:col-span-2">
         <label for="photo" class="block text-sm font-medium text-slate-800">Photo (optional)</label>
         <input id="photo" name="photo" type="file" accept="image/*" class="mt-1 block w-full text-sm text-slate-700 file:mr-4 file:rounded-lg file:border file:border-[var(--color-border)] file:bg-[var(--color-surface)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-slate-900 hover:file:bg-[var(--color-muted)]" />

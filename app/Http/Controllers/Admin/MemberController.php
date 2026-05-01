@@ -104,10 +104,12 @@ class MemberController extends Controller
             'facebook_url' => ['nullable', 'url', 'max:255'],
             'youtube_url' => ['nullable', 'url', 'max:255'],
             'is_active' => ['sometimes', 'boolean'],
+            'is_bod' => ['sometimes', 'boolean'],
             'photo' => ['nullable', 'image', 'max:2048'],
         ]);
 
         $validated['is_active'] = (bool) ($validated['is_active'] ?? false);
+        $validated['is_bod'] = (bool) ($validated['is_bod'] ?? false);
 
         unset($validated['photo']);
 
