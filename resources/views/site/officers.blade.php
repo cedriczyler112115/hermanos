@@ -151,13 +151,16 @@
             @php($choirMembers = ($choirMembers ?? collect()))
             @if ($choirMembers->count() > 0)
                 <section>
-                    <div class="my-10" aria-hidden="true">
+                    <div class="my-12" aria-hidden="true">
                         <div class="relative">
-                            <div class="h-px w-full bg-gradient-to-r from-transparent via-[var(--color-border)] to-transparent"></div>
-                            <div class="absolute inset-x-0 -top-3 flex justify-center">
-                                <div class="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-1.5 text-xs font-bold tracking-[0.2em] text-slate-800">
+                            <div class="h-1 w-full rounded-full bg-gradient-to-r from-transparent via-[var(--color-border)] to-transparent"></div>
+                            <div class="absolute inset-x-0 -top-5 flex justify-center">
+                                <div class="rounded-full border border-white/20 bg-gradient-to-r from-[var(--color-primary)] via-[#0a2f88] to-[var(--color-primary)] px-6 py-2 text-xs font-extrabold tracking-[0.28em] text-white shadow-lg shadow-[var(--color-primary)]/20 ring-1 ring-[var(--color-border)]">
                                     CHOIR MEMBER
                                 </div>
+                            </div>
+                            <div class="mt-6 flex items-center justify-center">
+                                <div class="h-2.5 w-2.5 rounded-full bg-[var(--color-accent)] ring-4 ring-[var(--color-surface)]"></div>
                             </div>
                         </div>
                     </div>
