@@ -162,7 +162,7 @@ class MemberRoleVoicePartTest extends TestCase
         $response->assertSee('Tenor');
     }
 
-    public function test_officers_page_shows_roles_1_to_7_and_excludes_non_officer_roles(): void
+    public function test_officers_page_shows_roles_1_to_7_and_includes_choir_member_section(): void
     {
         $now = now();
         DB::table('roles')->insert(
@@ -228,7 +228,8 @@ class MemberRoleVoicePartTest extends TestCase
         $response->assertSee('Officer Seven');
         $response->assertDontSee('Organist');
         $response->assertDontSee('The Organist');
-        $response->assertDontSee('Regular Member');
+        $response->assertSee('CHOIR MEMBER');
+        $response->assertSee('Regular Member');
     }
 
     public function test_board_of_directors_page_filters_by_is_bod(): void

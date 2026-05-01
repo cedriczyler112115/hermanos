@@ -22,24 +22,24 @@
                 @php($voicesLabel = $member->voicePart?->name)
                 <article class="group overflow-hidden rounded-3xl border border-[var(--color-border)] bg-white shadow-sm">
                     <div class="bg-gradient-to-b from-[var(--color-primary)]/10 to-white px-6 pt-6">
-                        <div class="mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-[var(--color-accent)] shadow-sm">
+                        <div class="member-avatar mx-auto flex items-center justify-center bg-white ring-2 ring-[var(--color-accent)] shadow-sm">
                             @if ($member->photo_path)
-                                <img src="{{ asset('storage/' . $member->photo_path) }}" alt="{{ $member->name }}" class="h-full w-full rounded-full object-cover" loading="lazy" />
+                                <img src="{{ asset('storage/' . $member->photo_path) }}" alt="{{ $member->name }}" loading="lazy" />
                             @else
-                                <div class="flex h-full w-full items-center justify-center bg-[var(--color-primary)] text-3xl font-semibold text-[var(--color-on-primary)]">
+                                <div class="flex h-full w-full items-center justify-center bg-[var(--color-primary)] text-4xl font-semibold text-[var(--color-on-primary)]">
                                     {{ mb_strtoupper(mb_substr($member->name, 0, 1)) }}
                                 </div>
                             @endif
                         </div>
                     </div>
                     <div class="p-6 pt-4">
-                        <h2 class="truncate text-lg font-semibold text-slate-900 group-hover:text-[var(--color-primary)]">{{ $member->name }}</h2>
-                        <div class="mt-1 text-sm text-slate-700">
+                        <h2 class="truncate text-center text-lg font-semibold text-slate-900 group-hover:text-[var(--color-primary)]">{{ $member->name }}</h2>
+                        <div class="mt-1 text-center text-sm text-slate-700">
                             {{ $rolesLabel ?: 'Member' }}@if ($voicesLabel) • {{ $voicesLabel }}@endif
                         </div>
 
                         @if ($member->email_address)
-                            <div class="mt-3 truncate text-sm font-semibold text-slate-900">{{ $member->email_address }}</div>
+                            <div class="mt-3 truncate text-center text-sm font-semibold text-slate-900">{{ $member->email_address }}</div>
                         @endif
 
                         <div class="mt-4 flex flex-wrap gap-2">

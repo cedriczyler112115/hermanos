@@ -560,12 +560,36 @@ class SiteController extends Controller
             ->orderBy('name')
             ->get();
 
+        $choirMemberRole = Role::query()
+            ->whereRaw('LOWER(name) = ?', ['choir member'])
+            ->orWhereRaw('LOWER(name) LIKE ?', ['%choir member%'])
+            ->orderBy('id')
+            ->first(['id', 'name']);
+
+        if (! $choirMemberRole) {
+            $choirMemberRole = Role::query()
+                ->whereRaw('LOWER(name) LIKE ?', ['%member%'])
+                ->orderBy('id')
+                ->first(['id', 'name']);
+        }
+
+        $choirMembers = $choirMemberRole
+            ? Member::query()
+                ->where('is_active', true)
+                ->where('role_id', $choirMemberRole->id)
+                ->with(['role', 'voicePart'])
+                ->orderBy('name')
+                ->get()
+            : collect();
+
         return view('site.officers', [
             'presidentRole' => $presidentRole,
             'presidentMembers' => $presidentMembers,
             'vicePresidentRole' => $vicePresidentRole,
             'vicePresidentMembers' => $vicePresidentMembers,
             'remainingOfficers' => $remainingOfficers,
+            'choirMemberRole' => $choirMemberRole,
+            'choirMembers' => $choirMembers,
         ]);
     }
 
