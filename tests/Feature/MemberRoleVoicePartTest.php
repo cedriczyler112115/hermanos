@@ -162,11 +162,11 @@ class MemberRoleVoicePartTest extends TestCase
         $response->assertSee('Tenor');
     }
 
-    public function test_officers_page_shows_roles_1_to_7_and_includes_choir_member_section(): void
+    public function test_officers_page_shows_roles_1_to_6_and_includes_choir_member_section(): void
     {
         $now = now();
         DB::table('roles')->insert(
-            collect(range(1, 7))->map(function ($i) use ($now) {
+            collect(range(1, 6))->map(function ($i) use ($now) {
                 return [
                     'id' => $i,
                     'name' => 'Officer Role '.$i,
@@ -179,14 +179,14 @@ class MemberRoleVoicePartTest extends TestCase
 
         DB::table('roles')->insert([
             [
-                'id' => 8,
+                'id' => 7,
                 'name' => 'Organist',
                 'description' => null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
             [
-                'id' => 9,
+                'id' => 8,
                 'name' => 'Choir Member',
                 'description' => null,
                 'created_at' => $now,
@@ -201,20 +201,20 @@ class MemberRoleVoicePartTest extends TestCase
         ]);
 
         Member::create([
-            'name' => 'Officer Seven',
-            'role_id' => 7,
+            'name' => 'Officer Six',
+            'role_id' => 6,
             'is_active' => true,
         ]);
 
         Member::create([
             'name' => 'The Organist',
-            'role_id' => 8,
+            'role_id' => 7,
             'is_active' => true,
         ]);
 
         Member::create([
             'name' => 'Regular Member',
-            'role_id' => 9,
+            'role_id' => 8,
             'is_active' => true,
         ]);
 
@@ -223,9 +223,11 @@ class MemberRoleVoicePartTest extends TestCase
 
         $response->assertSee('The Officers');
         $response->assertSee('Officer Role 1');
-        $response->assertSee('Officer Role 7');
         $response->assertSee('Officer One');
-        $response->assertSee('Officer Seven');
+        $response->assertSee('Officer Role 6');
+        $response->assertSee('Officer Six');
+        $response->assertDontSee('Officer Role 7');
+        $response->assertDontSee('Officer Seven');
         $response->assertDontSee('Organist');
         $response->assertDontSee('The Organist');
         $response->assertSee('CHOIR MEMBER');

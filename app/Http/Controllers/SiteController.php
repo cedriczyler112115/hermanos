@@ -535,7 +535,7 @@ class SiteController extends Controller
     public function officers()
     {
         $officerRoles = Role::query()
-            ->whereBetween('id', [1, 7])
+            ->whereBetween('id', [1, 6])
             ->orderBy('id')
             ->get(['id', 'name']);
 
