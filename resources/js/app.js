@@ -2166,11 +2166,11 @@ function initGalleryCarousel() {
         document.body.appendChild(overlay);
 
         overlay.addEventListener('click', (event) => {
-            const target = event.target;
-            if (!(target instanceof HTMLElement)) return;
-            if (target.closest('[data-gallery-close]')) {
-                close();
-            }
+            const rawTarget = event.target;
+            const target =
+                rawTarget instanceof Element ? rawTarget : rawTarget instanceof Node ? rawTarget.parentElement : null;
+            if (!target) return;
+            if (target.closest('[data-gallery-close]')) close();
         });
 
         prevBtn.addEventListener('click', () => go(-1));
