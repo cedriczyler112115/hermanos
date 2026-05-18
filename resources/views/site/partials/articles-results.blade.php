@@ -31,7 +31,14 @@
 
                 <div class="flex flex-1 flex-col p-6">
                     <div class="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                        <time datetime="{{ $article['posted_at'] }}">{{ \Carbon\Carbon::parse($article['posted_at'])->format('M d, Y') }}</time>
+                        @php
+                            try {
+                                $displayDate = \Carbon\Carbon::parse($article['posted_at'])->format('M d, Y');
+                            } catch (\Exception $e) {
+                                $displayDate = '---';
+                            }
+                        @endphp
+                        <time datetime="{{ $article['posted_at'] }}">{{ $displayDate }}</time>
                         @if ($article['author'])
                             <span class="h-1 w-1 rounded-full bg-slate-300"></span>
                             <span>By {{ $article['author'] }}</span>

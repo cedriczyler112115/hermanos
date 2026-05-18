@@ -75,7 +75,6 @@
             @endif
         </div>
     </section>
-
     <section class="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
         <div class="grid grid-cols-1 gap-10 px-6 py-10 md:grid-cols-2 md:px-10 md:py-14">
             <div>
@@ -228,69 +227,184 @@ special projects that promote its advocacies and goodwill.</div>
             </div>
         </div>
     </section>
-    <section class="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
-        <div class="grid grid-cols-1 gap-10 px-6 py-10 lg:grid-cols-2 md:px-10 md:py-14">
-            <div class="space-y-10">
-                {{-- Video 1 --}}
-                <div class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-sm">
-                    <div class="aspect-video w-full">
-                        <iframe 
-                            class="h-full w-full"
-                            src="https://www.youtube.com/embed/pekMbuis-AE?start=323" 
-                            title="10th Anniversary of Cantores Hermanos del Sr. Sto. Nino Choir" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                            allowfullscreen>
-                        </iframe>
+    {{-- Facebook Social Feed Section --}}
+    <section class="mb-10 overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
+        <div class="p-6 md:p-10">
+            <div class="flex flex-col gap-8">
+                {{-- Section Header --}}
+                <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                    <div class="max-w-2xl">
+                        <div class="inline-flex items-center gap-2 rounded-full bg-[var(--color-muted)] px-3 py-1 text-xs font-semibold text-[#1877F2] ring-1 ring-[#1877F2]/20">
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            <span>Social Connect</span>
+                        </div>
+                        <h2 class="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Latest from our Community</h2>
+                        <p class="mt-2 text-base text-slate-600">Stay updated with our recent activities, rehearsals, and announcements directly from our Facebook page.</p>
                     </div>
-                    <div class="p-6">
-                        <h2 class="text-xl font-bold text-slate-900">25th Anniversary Celebration</h2>
-                        <p class="mt-3 text-sm leading-relaxed text-slate-700">
-                            A two decade of faith and harmony: The Cantores Hermanos del Sr. Sto. Niño Choir marks its 25th anniversary, reflecting on ten years of dedicated service to the Church through sacred music. This milestone celebrates the enduring brotherhood and spiritual growth of our members as we continue to lift our voices in praise of the Holy Child Jesus.
-                        </p>
-                    </div>
-                </div><br>
+                    <div class="shrink-0">
+                        <a href="https://www.facebook.com/profile.php?id=100086482940323"
+                        target="_blank"
+                        rel="noreferrer"
+                        class="inline-flex items-center gap-2 justify-center rounded-xl bg-[#1877F2] px-5 py-3 text-sm font-semibold text-black shadow-sm hover:bg-[#166fe5] focus:bg-[#166fe5]">
 
-                {{-- Video 2 --}}
-                <div class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-sm">
-                    <div class="aspect-video w-full">
-                        <iframe 
-                            class="h-full w-full"
-                            src="https://www.youtube.com/embed/9mJ-C60ncqU" 
-                            title="25th Anniversary Special: Ama Namin" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                            allowfullscreen>
-                        </iframe>
-                    </div>
-                    <div class="p-6">
-                        <h2 class="text-xl font-bold text-slate-900">25th Anniversary Special: Ama Namin (Arranged by Tercilo Lico)</h2>
-                        <div class="mt-4 space-y-4 text-sm leading-relaxed text-slate-700">
-                            
-                            <p class="mt-3 text-sm leading-relaxed text-slate-700">
-                                In celebration of its 25th Anniversary, the Cantores Hermanos del Sr. Sto. Niño Choir proudly and prayerfully undertook the composition and launch of the album “Ama Namin”, skillfully arranged by Tercilo L. Lico. This milestone project is not merely a musical release, but a deeply spiritual offering born out of gratitude, devotion, and a renewed commitment to their sacred calling.
-                            </p>
-                            <p class="mt-3 text-sm leading-relaxed text-slate-700">
-                                Driven by a profound desire to channel the strength, resonance, and deep spirituality that define their collective voices, the choir sought to create an album that reflects both their artistic maturity and unwavering faith. Each arrangement in “Ama Namin” serves as a vessel of prayer—carefully crafted to elevate worship and draw listeners into a more intimate encounter with God, inspired by the enduring legacy of the faith successors who came before them.
-                            </p>
-                            <p class="mt-3 text-sm leading-relaxed text-slate-700">
-                                This musical endeavor also stands as a powerful reflection of brotherhood woven into spirituality. Within the Cantores Hermanos, masculinity is not defined by dominance, but by unity, humility, and shared devotion. Their bond as brothers is strengthened through rehearsals, ministries, and moments of prayer—transforming individual voices into a single harmonious expression of faith. The album becomes, therefore, a celebration of men walking together in spiritual purpose, supporting one another not only as musicians, but as brothers in Christ.
-                            </p>
-                            <p class="mt-3 text-sm leading-relaxed text-slate-700">
-                                The “Ama Namin” album stands as a testament to the choir’s enduring commitment to express faith through harmonies that echo both strength and reverence. It embodies their journey over 25 years—marked by service, discipline, sacrifice, and an ever-deepening love for liturgical music and devotion to the Señor Santo Niño.
-                            </p>
-                            <p class="mt-3 text-sm leading-relaxed text-slate-700">
-                                With every note and every prayerful rendition, the Cantores Hermanos del Sr. Sto. Niño Choir invites listeners to join them in a spiritual pilgrimage—a journey of reflection, worship, and renewal. Through this album, they offer more than music; they offer an experience of faith lived in harmony, brotherhood, and heartfelt devotion that continues to inspire generations.
-                            </p>
+                            <!-- Facebook Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="currentColor"
+                                class="h-5 w-5">
+                                <path d="M22 12.07C22 6.477 17.523 2 12 2S2 6.477 2 12.07c0 5.017 3.657 9.176 8.438 9.93v-7.03H7.898v-2.9h2.54V9.845c0-2.52 1.492-3.913 3.777-3.913 1.094 0 2.238.198 2.238.198v2.475h-1.26c-1.243 0-1.63.775-1.63 1.57v1.885h2.773l-.443 2.9h-2.33V22c4.78-.754 8.437-4.913 8.437-9.93z"/>
+                            </svg>
 
+                            Follow us on Facebook
+                        </a>
+                     </div>
+                            </div>
+
+                {{-- Side-by-Side FB & YouTube Plugins --}}
+                <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
+                    {{-- Left Side: YouTube Channel --}}
+                    <div class="w-full overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)] shadow-inner">
+                        <div class="flex flex-col h-full">
+                            <div class="bg-white/80 px-4 py-3 border-b border-[var(--color-border)] flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <svg class="h-5 w-5 text-[#FF0000]" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                    </svg>
+                                    <span class="text-xs font-bold uppercase tracking-widest text-slate-900">YouTube Latest Video</span>
+                                </div>
+                                <a href="https://www.youtube.com/@CantoresHermanos1999" target="_blank" rel="noreferrer" class="text-[10px] font-bold text-[#FF0000] hover:underline">Subscribe</a>
+                            </div>
+                            <div class="flex-1 flex flex-col justify-center bg-white/50 p-6">
+                                <div id="youtube-video-list" class="grid grid-cols-2 gap-3 max-h-[340px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
+                                    @if(!empty($youtubeVideos))
+                                        @foreach($youtubeVideos as $video)
+                                            <a href="{{ $video['url'] }}" target="_blank" rel="noreferrer"
+                                               class="group block rounded-lg overflow-hidden bg-slate-100 hover:bg-slate-200 transition-colors">
+                                                <div class="relative aspect-video">
+                                                    <img src="{{ $video['thumbnail'] }}" alt="{{ $video['title'] }}" class="w-full h-full object-cover">
+                                                    <div class="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors">
+                                                        <svg class="h-10 w-10 text-white opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 24 24">
+                                                            <path d="M8 5v14l11-7z"/>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div class="p-2">
+                                                    <div class="text-xs font-medium text-slate-900 line-clamp-2">{{ $video['title'] }}</div>
+                                                    @if(!empty($video['published']))
+                                                        <div class="text-[10px] text-slate-500 mt-1">{{ \Carbon\Carbon::parse($video['published'])->toDateString() }}</div>
+                                                    @endif
+                                                </div>
+                                            </a>
+                                        @endforeach
+                                    @else
+                                        <div class="col-span-2 aspect-video">
+                                            <iframe
+                                                class="h-full w-full rounded-xl"
+                                                src="https://www.youtube.com/embed/videoseries?list=UU0jDnZ1GfhkQLOAmYPH0V_g&playsinline=1"
+                                                title="Cantores Hermanos YouTube Videos"
+                                                frameborder="0"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                allowfullscreen>
+                                            </iframe>
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="mt-4 text-center">
+                                    <p class="text-xs font-medium text-slate-600">Watch our latest performances and rehearsals.</p>
+                                    <a href="https://www.youtube.com/@CantoresHermanos1999" target="_blank" rel="noreferrer" class="mt-3 inline-flex items-center gap-2 rounded-lg bg-[#FF0000] px-4 py-2 text-[10px] font-bold text-white hover:bg-[#cc0000] transition-colors">
+                                        Visit YouTube Channel
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Right Side: Full Timeline & Events --}}
+                    <div class="w-full overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)] shadow-inner">
+                        <div class="flex flex-col">
+                            <div class="bg-white/80 px-4 py-3 border-b border-[var(--color-border)] flex items-center gap-2">
+                                <svg class="h-4 w-4 text-[#1877F2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-xs font-bold uppercase tracking-widest text-slate-900">Events & Announcements</span>
+                            </div>
+                            <div class="flex justify-center bg-white/50 py-6">
+                                <div class="fb-page" 
+                                    data-href="https://www.facebook.com/profile.php?id=100086482940323" 
+                                    data-tabs="timeline,events" 
+                                    data-width="500" 
+                                    data-height="600" 
+                                    data-small-header="false" 
+                                    data-adapt-container-width="true" 
+                                    data-hide-cover="false" 
+                                    data-show-facepile="true">
+                                    <blockquote cite="https://www.facebook.com/profile.php?id=100086482940323" class="fb-xfbml-parse-ignore">
+                                        <a href="https://www.facebook.com/profile.php?id=100086482940323">Cantores Hermanos del Sr. Sto. Niño Choir</a>
+                                    </blockquote>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </section>    
 
+    {{-- Featured Videos Section --}}
+    <section class="mb-10 overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
+        <div class="p-6 md:p-10">
+            <div class="flex flex-col gap-6">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Featured Videos</h2>
+                    <p class="mt-2 text-base text-slate-600">Watch some of our most memorable performances and special celebrations.</p>
+                </div>
+                <div class="flex flex-col gap-12">
+                    {{-- Video 1 --}}
+                    <div class="flex flex-col gap-4">
+                        <div class="aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-lg">
+                            <iframe 
+                                class="h-full w-full"
+                                src="https://www.youtube.com/embed/pekMbuis-AE?start=323" 
+                                title="25th Anniversary Special: History and Evolution" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">25th Anniversary Special: History and Evolution</h3>
+                            <p class="mt-2 text-sm text-slate-600">
+                                A comprehensive look at the Cantores Hermanos del Sr. Sto. Niño Choir's 25-year journey, highlighting its growth, mission, and dedication to liturgical service since its founding in 1999.
+                            </p>
+                        </div>
+                    </div>
 
+                    {{-- Video 2 --}}
+                    <div class="flex flex-col gap-4">
+                        <div class="aspect-video w-full overflow-hidden rounded-2xl bg-black shadow-lg">
+                            <iframe 
+                                class="h-full w-full"
+                                src="https://www.youtube.com/embed/9mJ-C60ncqU" 
+                                title="Ama Namin (Arranged by Tercilo Lico)" 
+                                frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">Ama Namin (Arranged by Tercilo Lico)</h3>
+                            <p class="mt-2 text-sm text-slate-600">
+                                A powerful rendition of "Ama Namin" from the choir's 25th Anniversary album. This arrangement by Tercilo L. Lico showcases the unique strength and resonance of the male voices, blending vocal prowess with deep spiritual devotion.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
+ 
     <section class="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm lg:col-span-2">
             <div class="flex items-start justify-between gap-4">
@@ -389,4 +503,8 @@ special projects that promote its advocacies and goodwill.</div>
             @endforelse
         </div>
     </section>
+
+    {{-- Facebook SDK --}}
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v17.0" nonce="home_fb_feed"></script>
 @endsection

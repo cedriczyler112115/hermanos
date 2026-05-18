@@ -161,6 +161,36 @@ class SiteController extends Controller
             ->limit(8)
             ->get();
 
+        $memberSpotlight = Member::query()
+            ->where('is_active', true)
+            ->whereNotNull('photo_path')
+            ->with(['role', 'voicePart'])
+            ->inRandomOrder()
+            ->first();
+
+        $achievements = Article::query()
+            ->where('status', 'published')
+            ->where(function ($query) {
+                $query->where('category', 'like', '%Achievement%')
+                    ->orWhere('category', 'like', '%News%')
+                    ->orWhere('title', 'like', '%Achievement%');
+            })
+            ->orderByDesc('posted_at')
+            ->limit(2)
+            ->get();
+
+        $latestPerformances = Performance::query()
+            ->orderByDesc('created_at')
+            ->get();
+
+        $latestAlbums = GalleryAlbum::query()
+            ->where('is_published', true)
+            ->orderByDesc('created_at')
+            ->limit(4)
+            ->get();
+
+        $youtubeVideos = $this->fetchYouTubeVideos('UU0jDnZ1GfhkQLOAmYPH0V_g');
+
         return view('site.home', [
             'slideshowImages' => $slideshowImages,
             'slideshowError' => $slideshowError,
@@ -168,7 +198,66 @@ class SiteController extends Controller
             'latestArticles' => $latestArticles,
             'upcomingEvents' => $upcomingEvents,
             'members' => $members,
+            'memberSpotlight' => $memberSpotlight,
+            'achievements' => $achievements,
+            'latestPerformances' => $latestPerformances,
+            'latestAlbums' => $latestAlbums,
+            'youtubeVideos' => $youtubeVideos,
         ]);
+    }
+
+    private function fetchYouTubeVideos(string $channelId): array
+    {
+        try {
+            $rssUrl = "https://www.youtube.com/feeds/videos.xml?channel_id={$channelId}";
+            $response = \Illuminate\Support\Facades\Http::timeout(10)
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept' => 'application/rss+xml, application/xml, text/xml, */*',
+                ])
+                ->get($rssUrl);
+
+            if (!$response->successful()) {
+                return [];
+            }
+
+            $body = $response->body();
+            if (strpos($body, '<entry>') === false) {
+                return [];
+            }
+
+            $xml = simplexml_load_string($body, 'SimpleXMLElement', LIBXML_NOCDATA);
+            if (!$xml || !isset($xml->entry)) {
+                return [];
+            }
+
+            $videos = [];
+            foreach ($xml->entry as $entry) {
+                $namespaces = $entry->getNamespaces();
+                $videoId = isset($namespaces['yt'])
+                    ? (string) $entry->children($namespaces['yt'])->videoId
+                    : (string) $entry->videoId;
+                $title = (string) $entry->title;
+                $published = (string) $entry->published;
+
+                $thumbnail = $videoId
+                    ? "https://img.youtube.com/vi/{$videoId}/mqdefault.jpg"
+                    : '';
+
+                $videos[] = [
+                    'id' => $videoId,
+                    'title' => $title,
+                    'thumbnail' => $thumbnail,
+                    'url' => "https://www.youtube.com/watch?v={$videoId}",
+                    'published' => $published,
+                ];
+            }
+
+            return $videos;
+        } catch (\Throwable $e) {
+            report($e);
+            return [];
+        }
     }
 
     public function history()
