@@ -328,7 +328,7 @@ special projects that promote its advocacies and goodwill.</div>
                                 <svg class="h-4 w-4 text-[#1877F2]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
-                                <span class="text-xs font-bold uppercase tracking-widest text-slate-900">Events & Announcements</span>
+                                <span class="text-xs font-bold uppercase tracking-widest text-slate-900">Facebook Community</span>
                             </div>
                             <div class="flex justify-center bg-white/50 py-6">
                                 <div class="fb-page" 
