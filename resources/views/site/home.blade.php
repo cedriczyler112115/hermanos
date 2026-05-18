@@ -188,7 +188,7 @@ special projects that promote its advocacies and goodwill.</div>
                         <section aria-labelledby="home-featured-events-title">
                             <div class="flex items-center justify-between">
                                 <h3 id="home-featured-events-title" class="text-xs font-bold uppercase tracking-[0.2em] text-white">Upcoming Events</h3>
-                                <a href="{{ route('site.events') }}" class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-accent)] hover:text-white transition-colors">See all events</a>
+                                <a href="{{ route('site.events') }}" class="text-[10px] font-bold tracking-widest text-[var(--color-accent)] hover:text-white transition-colors">See all events</a>
                             </div>
 
                             <div class="mt-5 space-y-4">
@@ -228,7 +228,69 @@ special projects that promote its advocacies and goodwill.</div>
             </div>
         </div>
     </section>
+    <section class="overflow-hidden rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-sm">
+        <div class="grid grid-cols-1 gap-10 px-6 py-10 lg:grid-cols-2 md:px-10 md:py-14">
+            <div class="space-y-10">
+                {{-- Video 1 --}}
+                <div class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-sm">
+                    <div class="aspect-video w-full">
+                        <iframe 
+                            class="h-full w-full"
+                            src="https://www.youtube.com/embed/pekMbuis-AE?start=323" 
+                            title="10th Anniversary of Cantores Hermanos del Sr. Sto. Nino Choir" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold text-slate-900">25th Anniversary Celebration</h2>
+                        <p class="mt-3 text-sm leading-relaxed text-slate-700">
+                            A two decade of faith and harmony: The Cantores Hermanos del Sr. Sto. Niño Choir marks its 25th anniversary, reflecting on ten years of dedicated service to the Church through sacred music. This milestone celebrates the enduring brotherhood and spiritual growth of our members as we continue to lift our voices in praise of the Holy Child Jesus.
+                        </p>
+                    </div>
+                </div><br>
 
+                {{-- Video 2 --}}
+                <div class="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-white shadow-sm">
+                    <div class="aspect-video w-full">
+                        <iframe 
+                            class="h-full w-full"
+                            src="https://www.youtube.com/embed/9mJ-C60ncqU" 
+                            title="25th Anniversary Special: Ama Namin" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold text-slate-900">25th Anniversary Special: Ama Namin (Arranged by Tercilo Lico)</h2>
+                        <div class="mt-4 space-y-4 text-sm leading-relaxed text-slate-700">
+                            
+                            <p class="mt-3 text-sm leading-relaxed text-slate-700">
+                                In celebration of its 25th Anniversary, the Cantores Hermanos del Sr. Sto. Niño Choir proudly and prayerfully undertook the composition and launch of the album “Ama Namin”, skillfully arranged by Tercilo L. Lico. This milestone project is not merely a musical release, but a deeply spiritual offering born out of gratitude, devotion, and a renewed commitment to their sacred calling.
+                            </p>
+                            <p class="mt-3 text-sm leading-relaxed text-slate-700">
+                                Driven by a profound desire to channel the strength, resonance, and deep spirituality that define their collective voices, the choir sought to create an album that reflects both their artistic maturity and unwavering faith. Each arrangement in “Ama Namin” serves as a vessel of prayer—carefully crafted to elevate worship and draw listeners into a more intimate encounter with God, inspired by the enduring legacy of the faith successors who came before them.
+                            </p>
+                            <p class="mt-3 text-sm leading-relaxed text-slate-700">
+                                This musical endeavor also stands as a powerful reflection of brotherhood woven into spirituality. Within the Cantores Hermanos, masculinity is not defined by dominance, but by unity, humility, and shared devotion. Their bond as brothers is strengthened through rehearsals, ministries, and moments of prayer—transforming individual voices into a single harmonious expression of faith. The album becomes, therefore, a celebration of men walking together in spiritual purpose, supporting one another not only as musicians, but as brothers in Christ.
+                            </p>
+                            <p class="mt-3 text-sm leading-relaxed text-slate-700">
+                                The “Ama Namin” album stands as a testament to the choir’s enduring commitment to express faith through harmonies that echo both strength and reverence. It embodies their journey over 25 years—marked by service, discipline, sacrifice, and an ever-deepening love for liturgical music and devotion to the Señor Santo Niño.
+                            </p>
+                            <p class="mt-3 text-sm leading-relaxed text-slate-700">
+                                With every note and every prayerful rendition, the Cantores Hermanos del Sr. Sto. Niño Choir invites listeners to join them in a spiritual pilgrimage—a journey of reflection, worship, and renewal. Through this album, they offer more than music; they offer an experience of faith lived in harmony, brotherhood, and heartfelt devotion that continues to inspire generations.
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </section>
     <section class="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm lg:col-span-2">
             <div class="flex items-start justify-between gap-4">
