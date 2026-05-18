@@ -136,28 +136,93 @@ special projects that promote its advocacies and goodwill.</div>
 
             <div class="relative">
                 <div class="absolute inset-0 rounded-3xl bg-[var(--color-primary)] opacity-10"></div>
-                <div class="relative h-full overflow-hidden rounded-3xl border border-[var(--color-border)] bg-gradient-to-br from-[var(--color-primary)] via-[#0a2f88] to-[#001a4d] p-6 shadow-sm">
+                <div class="relative flex h-full flex-col overflow-hidden rounded-3xl border border-[var(--color-border)] bg-gradient-to-br from-[var(--color-primary)] via-[#0a2f88] to-[#001a4d] p-6 shadow-sm sm:p-8">
                     <div class="flex items-center justify-between">
-                        <div class="text-sm font-semibold text-[var(--color-on-primary)]">Featured</div>
-                        <div class="inline-flex items-center rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold text-[var(--color-on-accent)]">
-                            Upcoming
-                        </div>
+                        <div class="text-sm font-bold text-[var(--color-on-primary)] uppercase tracking-widest">Featured Highlights</div>
+                        <div class="h-px flex-1 bg-white/10 ml-4"></div>
                     </div>
 
-                    <div class="mt-6 space-y-4">
-                        @foreach ($upcomingEvents as $event)
-                            <div class="rounded-2xl bg-white/10 p-4 ring-1 ring-white/15">
-                                <div class="text-sm font-semibold text-white">{{ $event['title'] }}</div>
-                                <div class="mt-1 text-xs text-white/80">{{ $event['date'] }} • {{ $event['location'] }}</div>
-                                <div class="mt-2 text-sm text-white/90">{{ $event['details'] }}</div>
+                    <div class="mt-8 flex-1 space-y-12">
+                        {{-- Latest Articles Section --}}
+                        <section aria-labelledby="home-featured-articles-title">
+                            <div class="flex items-center justify-between">
+                                <h3 id="home-featured-articles-title" class="text-xs font-bold uppercase tracking-[0.2em] text-white">Latest Articles</h3>
+                                <a href="{{ route('site.articles') }}" class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-accent)] hover:text-white transition-colors">See all articles</a>
                             </div>
-                        @endforeach
+                            
+                            <div class="mt-5 space-y-4">
+                                @forelse ($latestArticles as $article)
+                                    <a href="{{ route('site.articles.detail', $article['slug']) }}" class="group block overflow-hidden rounded-2xl border border-white/10 bg-white/10 p-4 shadow-sm transition-all hover:border-white/30 hover:bg-white/15 hover:shadow-md">
+                                        <div class="flex items-center justify-between gap-3">
+                                            <div class="text-[10px] font-bold uppercase tracking-wider text-[var(--color-accent)]">{{ $article['posted_at'] }}</div>
+                                            <div class="rounded-full bg-white/20 px-2 py-0.5 text-[9px] font-bold text-white uppercase tracking-tighter">{{ $article['category'] ?? 'General' }}</div>
+                                        </div>
+                                        <h4 class="mt-2 text-base font-bold text-white group-hover:text-[var(--color-accent)] transition-colors leading-snug">{{ $article['title'] }}</h4>
+                                        <p class="mt-2 line-clamp-2 text-xs text-white leading-relaxed">{{ $article['excerpt'] }}</p>
+                                        <div class="mt-3 flex items-center gap-1 text-[10px] font-bold text-[var(--color-accent)] opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span>Read full article</span>
+                                            <span>→</span>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <div class="rounded-2xl border border-dashed border-white/20 p-6 text-center">
+                                        <p class="text-xs italic text-white">No articles posted yet.</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </section>
+
+                        {{-- Visual Separator --}}
+                        <div class="relative py-2 flex items-center justify-center">
+                            <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                                <div class="w-full border-t border-white/20"></div>
+                            </div>
+                            <div class="relative bg-[#0a2f88] px-4">
+                                <svg class="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        {{-- Upcoming Events Section --}}
+                        <section aria-labelledby="home-featured-events-title">
+                            <div class="flex items-center justify-between">
+                                <h3 id="home-featured-events-title" class="text-xs font-bold uppercase tracking-[0.2em] text-white">Upcoming Events</h3>
+                                <a href="{{ route('site.events') }}" class="text-[10px] font-bold uppercase tracking-widest text-[var(--color-accent)] hover:text-white transition-colors">See all events</a>
+                            </div>
+
+                            <div class="mt-5 space-y-4">
+                                @forelse ($upcomingEvents as $event)
+                                    <div class="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/10 p-4 shadow-sm transition-all hover:border-[var(--color-accent)]/50 hover:bg-white/15">
+                                        <div class="flex flex-col gap-1">
+                                            <div class="text-[10px] font-black uppercase tracking-widest text-[var(--color-accent)]">{{ $event['date'] }}</div>
+                                            <h4 class="text-base font-bold text-white leading-snug">{{ $event['title'] }}</h4>
+                                            <div class="mt-1 flex items-center gap-2 text-[10px] font-medium text-white">
+                                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                <span>{{ $event['location'] }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="rounded-2xl border border-dashed border-white/20 p-6 text-center">
+                                        <p class="text-xs italic text-white">No upcoming events scheduled.</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                        </section>
                     </div>
 
-                    <div class="mt-6">
-                        <a href="{{ route('site.events') }}" class="inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-4 py-2.5 text-sm font-semibold text-[var(--color-on-accent)] hover:bg-[#f2c200] focus:bg-[#f2c200]">
-                            View all events
-                        </a>
+                    <div class="mt-10 pt-6 border-t border-white/20">
+                        <div class="flex items-center justify-center gap-4 text-[10px] text-white font-bold uppercase tracking-[0.3em]">
+                            <span>Faith</span>
+                            <span class="h-1 w-1 rounded-full bg-white"></span>
+                            <span>Service</span>
+                            <span class="h-1 w-1 rounded-full bg-white"></span>
+                            <span>Ministry</span>
+                        </div>
                     </div>
                 </div>
             </div>
