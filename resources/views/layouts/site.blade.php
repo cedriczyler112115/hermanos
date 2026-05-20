@@ -9,6 +9,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @stack('styles')
     </head>
     <body class="flex min-h-dvh flex-col">
         <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-[var(--color-surface)] focus:px-4 focus:py-2 focus:text-slate-900 focus:shadow">
@@ -190,5 +191,6 @@
                 </div>
             </div>
         </footer>
+        @stack('scripts')
     </body>
 </html>

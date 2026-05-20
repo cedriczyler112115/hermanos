@@ -27,6 +27,10 @@ Route::get('/gallery/{album}', [SiteController::class, 'galleryAlbum'])->name('s
 Route::get('/performances', [SiteController::class, 'performances'])->name('site.performances');
 Route::get('/members', [SiteController::class, 'members'])->name('site.members');
 Route::get('/contact', [SiteController::class, 'contact'])->name('site.contact');
+Route::post('/contact', [SiteController::class, 'sendContact'])->name('site.contact.send');
+Route::get('/unsubscribe', function () {
+    return 'You have been unsubscribed.';
+})->name('site.unsubscribe');
 Route::get('/articles', [SiteController::class, 'articles'])->name('site.articles');
 Route::get('/articles/{article:slug}', [SiteController::class, 'articleDetail'])->name('site.articles.detail');
 Route::get('/music-sheets', [SiteController::class, 'musicSheets'])->name('site.music_sheets');

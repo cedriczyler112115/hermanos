@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\EmailLog;
 use App\Models\Event;
 use App\Models\GalleryAlbum;
 use App\Models\GalleryPhoto;
@@ -11,10 +12,14 @@ use App\Models\MusicSheet;
 use App\Models\Performance;
 use App\Models\Role;
 use App\Models\SlideshowImage;
+use App\Models\User;
+use App\Mail\ContactEmail;
 use App\Support\PublicListing;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -723,6 +728,54 @@ class SiteController extends Controller
     public function contact()
     {
         return view('site.contact');
+    }
+
+    public function sendContact(Request $request)
+    {
+        $executed = RateLimiter::attempt(
+            'send-contact:'.$request->ip(),
+            $perMinute = 5,
+            function() use ($request) {
+                $validated = $request->validate([
+                    'sender_name' => 'required|string|min:2|max:100',
+                    'subject' => 'required|string|min:5|max:200',
+                    'message' => 'required|string|min:20|max:5000',
+                ]);
+
+                $recipients = User::whereNotNull('email')->pluck('email')->toArray();
+                $recipientCount = count($recipients);
+
+                if ($recipientCount > 0) {
+                    try {
+                        $optimizedSubject = $validated['subject'] . " | Cantores Hermanos Official";
+                        Mail::to($recipients)->send(new ContactEmail(
+                            $validated['sender_name'],
+                            $optimizedSubject,
+                            $validated['message']
+                        ));
+                    } catch (\Exception $e) {
+                        \Log::error('Email delivery failed: ' . $e->getMessage());
+                        return back()->withInput()->withErrors(['error' => 'Failed to send some emails. Please try again later.']);
+                    }
+                }
+
+                EmailLog::create([
+                    'sender_name' => $validated['sender_name'],
+                    'email_subject' => $validated['subject'],
+                    'message_content' => $validated['message'],
+                    'sent_at' => now(),
+                    'recipient_count' => $recipientCount,
+                ]);
+
+                return back()->with('success', "Message sent successfully to {$recipientCount} users.");
+            }
+        );
+
+        if (! $executed) {
+            return back()->withInput()->withErrors(['error' => 'Too many requests. Please wait before sending another message.']);
+        }
+
+        return $executed;
     }
 
     public function articles(Request $request)
