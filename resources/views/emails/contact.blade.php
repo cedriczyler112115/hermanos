@@ -143,7 +143,7 @@
                     <div class="content">
                         
                         <div class="body-text">
-                            Hello, You have received a new  inquiry from <strong>{{ $senderName }}</strong> via the Cantores Hermanos Del Senyor Sto, Nino official portal. 
+                            Hello, You have received a new  inquiry from <strong>{{ $senderName }}</strong> via the Cantores Hermanos Del Senyor Sto, Nino official website. 
                         </div>
 
                         <div class="message-box">
