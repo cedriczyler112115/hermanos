@@ -626,11 +626,11 @@ class SiteController extends Controller
             ->sortKeysUsing(function (string $a, string $b) {
                 $order = [
                     'adviser' => 1,
-                    'tenor 1' => 2,
+                    'tenor 1' => 4,
                     'tenor 2' => 3,
-                    'bass 1' => 4,
+                    'bass 1' => 6,
                     'bass 2' => 5,
-                    'organist' => 6,
+                    'organist' => 2,
                     'unassigned' => 99,
                 ];
 
