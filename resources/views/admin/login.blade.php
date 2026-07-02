@@ -17,7 +17,7 @@
                         id="email"
                         name="email"
                         type="email"
-                        value="abgonzales87@gmail.com"
+                        value="
                         value="{{ old('email') }}"
                         autocomplete="email"
                         required
@@ -34,7 +34,7 @@
                         id="password"
                         name="password"
                         type="password"
-                        value="cedie112115"
+                        value=""
                         autocomplete="current-password"
                         required
                         class="mt-1 w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-3 text-slate-900 shadow-sm focus:border-[var(--color-primary)] focus:ring-0"
