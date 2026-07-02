@@ -625,11 +625,12 @@ class SiteController extends Controller
             })
             ->sortKeysUsing(function (string $a, string $b) {
                 $order = [
-                    'tenor 1' => 1,
-                    'tenor 2' => 2,
-                    'bass 1' => 3,
-                    'bass 2' => 4,
-                    'organist' => 5,
+                    'adviser' => 1,
+                    'tenor 1' => 2,
+                    'tenor 2' => 3,
+                    'bass 1' => 4,
+                    'bass 2' => 5,
+                    'organist' => 6,
                     'unassigned' => 99,
                 ];
 
