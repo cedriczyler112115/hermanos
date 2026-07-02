@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
+use App\Models\EmailLog;
 use App\Models\Event;
 use App\Models\GalleryAlbum;
 use App\Models\GalleryPhoto;
@@ -10,11 +12,16 @@ use App\Models\MusicSheet;
 use App\Models\Performance;
 use App\Models\Role;
 use App\Models\SlideshowImage;
+use App\Models\User;
+use App\Mail\ContactEmail;
 use App\Support\PublicListing;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SiteController extends Controller
 {
@@ -110,26 +117,47 @@ class SiteController extends Controller
             $slideshowError = 'Failed to load slideshow images.';
         }
 
-        $upcomingEvents = [
-            [
-                'title' => 'Sunday Mass Service',
-                'date' => 'Every Sunday',
-                'location' => 'Parish Church',
-                'details' => 'Liturgical songs and choir service for the community.',
-            ],
-            [
-                'title' => 'Rehearsal Night',
-                'date' => 'Weekly (Schedule Posted)',
-                'location' => 'Choir Room',
-                'details' => 'Voice formation, harmony practice, and new repertoire.',
-            ],
-            [
-                'title' => 'Feast Celebration',
-                'date' => 'Upcoming Feast Day',
-                'location' => 'Community Venue',
-                'details' => 'Special performance honoring Señor Santo Niño.',
-            ],
-        ];
+        $latestArticles = Article::query()
+            ->where('status', 'published')
+            ->orderByDesc('posted_at')
+            ->orderByDesc('created_at')
+            ->limit(3)
+            ->get([
+                'id',
+                'title',
+                'slug',
+                'author',
+                'category',
+                'description',
+                'posted_at',
+            ])
+            ->map(fn ($article) => [
+                'id' => $article->id,
+                'title' => $article->title,
+                'slug' => $article->slug,
+                'author' => $article->author,
+                'category' => $article->category,
+                'excerpt' => Str::limit(strip_tags((string) $article->description), 120),
+                'posted_at' => optional($article->posted_at)->format('M d, Y'),
+            ]);
+
+        $upcomingEvents = Event::query()
+            ->where('is_published', true)
+            ->orderByDesc('created_at')
+            ->limit(3)
+            ->get([
+                'id',
+                'title',
+                'schedule',
+                'location',
+                'about',
+            ])
+            ->map(fn ($event) => [
+                'title' => $event->title,
+                'date' => $event->schedule ?: 'TBA',
+                'location' => $event->location ?: 'TBA',
+                'details' => Str::limit(strip_tags((string) $event->about), 100),
+            ]);
 
         $members = Member::query()
             ->where('is_active', true)
@@ -138,13 +166,103 @@ class SiteController extends Controller
             ->limit(8)
             ->get();
 
+        $memberSpotlight = Member::query()
+            ->where('is_active', true)
+            ->whereNotNull('photo_path')
+            ->with(['role', 'voicePart'])
+            ->inRandomOrder()
+            ->first();
+
+        $achievements = Article::query()
+            ->where('status', 'published')
+            ->where(function ($query) {
+                $query->where('category', 'like', '%Achievement%')
+                    ->orWhere('category', 'like', '%News%')
+                    ->orWhere('title', 'like', '%Achievement%');
+            })
+            ->orderByDesc('posted_at')
+            ->limit(2)
+            ->get();
+
+        $latestPerformances = Performance::query()
+            ->orderByDesc('created_at')
+            ->get();
+
+        $latestAlbums = GalleryAlbum::query()
+            ->where('is_published', true)
+            ->orderByDesc('created_at')
+            ->limit(4)
+            ->get();
+
+        $youtubeVideos = $this->fetchYouTubeVideos('UU0jDnZ1GfhkQLOAmYPH0V_g');
+
         return view('site.home', [
             'slideshowImages' => $slideshowImages,
             'slideshowError' => $slideshowError,
             'slideshowWarning' => $slideshowWarning,
+            'latestArticles' => $latestArticles,
             'upcomingEvents' => $upcomingEvents,
             'members' => $members,
+            'memberSpotlight' => $memberSpotlight,
+            'achievements' => $achievements,
+            'latestPerformances' => $latestPerformances,
+            'latestAlbums' => $latestAlbums,
+            'youtubeVideos' => $youtubeVideos,
         ]);
+    }
+
+    private function fetchYouTubeVideos(string $channelId): array
+    {
+        try {
+            $rssUrl = "https://www.youtube.com/feeds/videos.xml?channel_id={$channelId}";
+            $response = \Illuminate\Support\Facades\Http::timeout(10)
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept' => 'application/rss+xml, application/xml, text/xml, */*',
+                ])
+                ->get($rssUrl);
+
+            if (!$response->successful()) {
+                return [];
+            }
+
+            $body = $response->body();
+            if (strpos($body, '<entry>') === false) {
+                return [];
+            }
+
+            $xml = simplexml_load_string($body, 'SimpleXMLElement', LIBXML_NOCDATA);
+            if (!$xml || !isset($xml->entry)) {
+                return [];
+            }
+
+            $videos = [];
+            foreach ($xml->entry as $entry) {
+                $namespaces = $entry->getNamespaces();
+                $videoId = isset($namespaces['yt'])
+                    ? (string) $entry->children($namespaces['yt'])->videoId
+                    : (string) $entry->videoId;
+                $title = (string) $entry->title;
+                $published = (string) $entry->published;
+
+                $thumbnail = $videoId
+                    ? "https://img.youtube.com/vi/{$videoId}/mqdefault.jpg"
+                    : '';
+
+                $videos[] = [
+                    'id' => $videoId,
+                    'title' => $title,
+                    'thumbnail' => $thumbnail,
+                    'url' => "https://www.youtube.com/watch?v={$videoId}",
+                    'published' => $published,
+                ];
+            }
+
+            return $videos;
+        } catch (\Throwable $e) {
+            report($e);
+            return [];
+        }
     }
 
     public function history()
@@ -611,6 +729,168 @@ class SiteController extends Controller
     public function contact()
     {
         return view('site.contact');
+    }
+
+    public function sendContact(Request $request)
+    {
+        $executed = RateLimiter::attempt(
+            'send-contact:'.$request->ip(),
+            $perMinute = 5,
+            function() use ($request) {
+                $validated = $request->validate([
+                    'sender_name' => 'required|string|min:2|max:100',
+                    'subject' => 'required|string|min:5|max:200',
+                    'message' => 'required|string|min:20|max:5000',
+                ]);
+
+                $recipients = User::whereNotNull('email')->pluck('email')->toArray();
+                $recipientCount = count($recipients);
+
+                if ($recipientCount > 0) {
+                    try {
+                        $optimizedSubject = $validated['subject'] . " | Cantores Hermanos Official";
+                        Mail::to($recipients)->send(new ContactEmail(
+                            $validated['sender_name'],
+                            $optimizedSubject,
+                            $validated['message']
+                        ));
+                    } catch (\Exception $e) {
+                        \Log::error('Email delivery failed: ' . $e->getMessage());
+                        return back()->withInput()->withErrors(['error' => 'Failed to send some emails. Please try again later.']);
+                    }
+                }
+
+                EmailLog::create([
+                    'sender_name' => $validated['sender_name'],
+                    'email_subject' => $validated['subject'],
+                    'message_content' => $validated['message'],
+                    'sent_at' => now(),
+                    'recipient_count' => $recipientCount,
+                ]);
+
+                return back()->with('success', "Message sent successfully to {$recipientCount} users.");
+            }
+        );
+
+        if (! $executed) {
+            return back()->withInput()->withErrors(['error' => 'Too many requests. Please wait before sending another message.']);
+        }
+
+        return $executed;
+    }
+
+    public function articles(Request $request)
+    {
+        $q = PublicListing::queryString($request->query('q', ''));
+        $page = max(1, (int) $request->query('page', 1));
+        $perPage = PublicListing::perPage($request->query('per_page', 10), [10, 20, 50], 10);
+
+        $version = (int) Cache::get('articles_public_version', 1);
+        $cacheKey = 'public_articles:v'.$version.':q='.md5($q).':per_page='.$perPage.':page='.$page;
+
+        $cached = Cache::remember($cacheKey, now()->addMinutes(5), function () use ($q, $page, $perPage) {
+            $base = Article::query()
+                ->where('status', 'published')
+                ->when($q !== '', function ($query) use ($q) {
+                    $like = '%'.$q.'%';
+                    $query->where(function ($inner) use ($like) {
+                        $inner->where('title', 'like', $like)
+                            ->orWhere('author', 'like', $like)
+                            ->orWhere('category', 'like', $like)
+                            ->orWhere('description', 'like', $like);
+                    });
+                })
+                ->orderByDesc('posted_at')
+                ->orderByDesc('created_at');
+
+            $total = (clone $base)->count();
+
+            $items = $base
+                ->forPage($page, $perPage)
+                ->get([
+                    'id',
+                    'title',
+                    'slug',
+                    'author',
+                    'category',
+                    'description',
+                    'featured_image_path',
+                    'featured_image_thumb_path',
+                    'posted_at',
+                ])
+                ->map(fn ($article) => [
+                    'id' => $article->id,
+                    'title' => $article->title,
+                    'slug' => $article->slug,
+                    'author' => $article->author,
+                    'category' => $article->category,
+                    'excerpt' => Str::limit(strip_tags((string) $article->description), 160),
+                    'featured_image_path' => $article->featured_image_path,
+                    'featured_image_thumb_path' => $article->featured_image_thumb_path,
+                    'posted_at' => optional($article->posted_at)->toDateString(),
+                ])
+                ->all();
+
+            return [
+                'items' => $items,
+                'total' => $total,
+            ];
+        });
+
+        $paginator = new LengthAwarePaginator(
+            $cached['items'] ?? [],
+            (int) ($cached['total'] ?? 0),
+            $perPage,
+            $page,
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ],
+        );
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'html' => view('site.partials.articles-results', [
+                    'articles' => $paginator,
+                ])->render(),
+            ]);
+        }
+
+        return view('site.articles', [
+            'articles' => $paginator,
+            'q' => $q,
+            'perPage' => $perPage,
+            'perPageOptions' => [10, 20, 50],
+        ]);
+    }
+
+    public function articleDetail(Article $article)
+    {
+        abort_unless($article->status === 'published', 404);
+
+        $fbEmbedHtml = $article->fb_embed_code ?: $this->facebookEmbedHtml($article->fb_link);
+
+        return view('site.article-detail', [
+            'article' => $article,
+            'fbEmbedHtml' => $fbEmbedHtml,
+        ]);
+    }
+
+    private function facebookEmbedHtml(?string $url): ?string
+    {
+        $url = is_string($url) ? trim($url) : '';
+        if ($url === '') {
+            return null;
+        }
+
+        // Check if it's already an embed URL or a standard post URL
+        if (str_contains($url, 'facebook.com/plugins/')) {
+            return '<iframe src="'.e($url).'" width="500" height="700" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>';
+        }
+
+        // Basic post/video URL conversion to embed
+        // We'll use the Facebook post plugin format
+        return '<div class="fb-post" data-href="'.e($url).'" data-width="auto" data-show-text="true"></div>';
     }
 
     private function youtubeEmbedUrl(?string $url): ?string

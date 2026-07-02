@@ -4,10 +4,12 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('title', config('app.name', 'Cantores Hermanos Del Sr. Sto. Niño Choir'))</title>
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @stack('styles')
     </head>
     <body class="flex min-h-dvh flex-col">
         <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-[var(--color-surface)] focus:px-4 focus:py-2 focus:text-slate-900 focus:shadow">
@@ -64,6 +66,9 @@
                             </a>
                             <a href="{{ route('site.board_of_directors') }}" class="block px-4 py-3 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-[var(--color-accent)] focus:bg-white/10 focus:text-[var(--color-accent)]" @if (request()->routeIs('site.board_of_directors')) aria-current="page" @endif>
                                 The BOD
+                            </a>
+                            <a href="{{ route('site.articles') }}" class="block px-4 py-3 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-[var(--color-accent)] focus:bg-white/10 focus:text-[var(--color-accent)]" @if (request()->routeIs('site.articles*')) aria-current="page" @endif>
+                                Articles
                             </a>
                             <a href="{{ route('site.contact') }}" class="block px-4 py-3 text-sm font-semibold text-white/90 hover:bg-white/10 hover:text-[var(--color-accent)] focus:bg-white/10 focus:text-[var(--color-accent)]">
                                 Contact Us
@@ -130,6 +135,9 @@
                             <a href="{{ route('site.board_of_directors') }}" class="{{ $mobileBase }} {{ request()->routeIs('site.board_of_directors') ? $mobileActive : '' }}" @if (request()->routeIs('site.board_of_directors')) aria-current="page" @endif>
                                 The BOD
                             </a>
+                            <a href="{{ route('site.articles') }}" class="{{ $mobileBase }} {{ request()->routeIs('site.articles*') ? $mobileActive : '' }}" @if (request()->routeIs('site.articles*')) aria-current="page" @endif>
+                                Articles
+                            </a>
                             <a href="{{ route('site.contact') }}" class="{{ $mobileBase }}">
                                 Contact Us
                             </a>
@@ -183,5 +191,6 @@
                 </div>
             </div>
         </footer>
+        @stack('scripts')
     </body>
 </html>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ArticleController as AdminArticleController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\GalleryAlbumController as AdminGalleryAlbumController;
@@ -26,6 +27,12 @@ Route::get('/gallery/{album}', [SiteController::class, 'galleryAlbum'])->name('s
 Route::get('/performances', [SiteController::class, 'performances'])->name('site.performances');
 Route::get('/members', [SiteController::class, 'members'])->name('site.members');
 Route::get('/contact', [SiteController::class, 'contact'])->name('site.contact');
+Route::post('/contact', [SiteController::class, 'sendContact'])->name('site.contact.send');
+Route::get('/unsubscribe', function () {
+    return 'You have been unsubscribed.';
+})->name('site.unsubscribe');
+Route::get('/articles', [SiteController::class, 'articles'])->name('site.articles');
+Route::get('/articles/{article:slug}', [SiteController::class, 'articleDetail'])->name('site.articles.detail');
 Route::get('/music-sheets', [SiteController::class, 'musicSheets'])->name('site.music_sheets');
 Route::post('/music-sheets/{music_sheet}/track-view', [MusicSheetPublicController::class, 'trackView'])->name('site.music_sheets.track_view');
 Route::post('/music-sheets/{music_sheet}/download-intent', [MusicSheetPublicController::class, 'downloadIntent'])->name('site.music_sheets.download_intent');
@@ -88,6 +95,10 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('music-sheets', AdminMusicSheetController::class)
             ->names('admin.music_sheets')
+            ->except(['show']);
+
+        Route::resource('articles', AdminArticleController::class)
+            ->names('admin.articles')
             ->except(['show']);
     });
 });

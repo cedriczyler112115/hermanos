@@ -6,7 +6,6 @@
     <div class="rounded-3xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-sm sm:p-10">
         <div class="max-w-3xl">
             <h1 class="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">About the Cantores Hermanos</h1>
-
         </div>
 
         <div class="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">

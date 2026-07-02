@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>@yield('title', 'Admin · ' . config('app.name', 'Cantores Hermanos'))</title>
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
@@ -35,6 +36,7 @@
                                 <a href="{{ route('admin.gallery_albums.create') }}" class="block px-4 py-3 text-sm font-medium text-slate-900 hover:bg-[var(--color-muted)]">Add gallery album</a>
                                 <a href="{{ route('admin.performances.create') }}" class="block px-4 py-3 text-sm font-medium text-slate-900 hover:bg-[var(--color-muted)]">Add performance</a>
                                 <a href="{{ route('admin.music_sheets.create') }}" class="block px-4 py-3 text-sm font-medium text-slate-900 hover:bg-[var(--color-muted)]">Add music sheet</a>
+                                <a href="{{ route('admin.articles.create') }}" class="block px-4 py-3 text-sm font-medium text-slate-900 hover:bg-[var(--color-muted)]">Add article</a>
                             </div>
                         </details>
                         <a href="{{ route('site.home') }}" class="inline-flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium text-slate-800 hover:bg-[var(--color-muted)] hover:text-[var(--color-primary)]">
@@ -69,6 +71,9 @@
                         </a>
                         <a href="{{ route('admin.music_sheets.index') }}" class="min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold {{ request()->routeIs('admin.music_sheets.*') ? 'bg-[var(--color-muted)] text-[var(--color-primary)]' : 'text-slate-800 hover:bg-[var(--color-muted)] hover:text-[var(--color-primary)]' }}">
                             Music Sheets
+                        </a>
+                        <a href="{{ route('admin.articles.index') }}" class="min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold {{ request()->routeIs('admin.articles.*') ? 'bg-[var(--color-muted)] text-[var(--color-primary)]' : 'text-slate-800 hover:bg-[var(--color-muted)] hover:text-[var(--color-primary)]' }}">
+                            Articles
                         </a>
                     </nav>
                 @endauth
